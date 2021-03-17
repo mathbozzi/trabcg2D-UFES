@@ -56,16 +56,23 @@ bool playerWon;
 // of the arena is the new origin
 void setNewOrigin()
 {
-
+	//inicia ponto do lutador 
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
 	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_height() / 2));
 	lutadorPoint.y = ((arenaSVG->get_height() / 2) - lutadorPoint.y);
 	lutadorPrincipal->MudaPosicao(lutadorPoint);
 
-	Point oponentePoint = lutadorOponente->get_position();
+	//inicia ponto do oponente 
+	Point oponentePoint = lutadorOponente->ObtemPosicao();
 	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_height() / 2));
 	oponentePoint.y = ((arenaSVG->get_height() / 2) - oponentePoint.y);
-	lutadorOponente->set_position(oponentePoint);
+	lutadorOponente->MudaPosicao(oponentePoint);
+
+	//coloca os dois de frente 
+	Point result = {oponentePoint.x - lutadorPoint.x, oponentePoint.y - lutadorPoint.y};
+	double angle = atan2(result.y,result.x);	
+	lutadorPrincipal->MudaAnguloJogador(((angle*180)/M_PI)-90);
+	lutadorOponente->MudaAnguloJogador(-((180-(angle*180/M_PI))*2)-(((angle*180)/M_PI)-90));
 }
 
 void mouse(int botao, int estado, int x, int y)
@@ -151,7 +158,7 @@ void idle(void)
 	bool dCheck;
 
 	dCheck = (keyStatus['D'] == 1 || keyStatus['d'] == 1) && wheelAngle > -45 - 1;
-	aCheck = (keyStatus['A'] == 1 || keyStatus['a'] == 1) && wheelAngle < 45 +1;
+	aCheck = (keyStatus['A'] == 1 || keyStatus['a'] == 1) && wheelAngle < 45 + 1;
 	wCheck = keyStatus['W'] == 1 || keyStatus['w'] == 1;
 	sCheck = keyStatus['S'] == 1 || keyStatus['s'] == 1;
 

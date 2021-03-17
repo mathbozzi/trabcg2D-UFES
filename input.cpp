@@ -45,20 +45,9 @@ string parseXMLFile(string filePath)
   {
 
     XMLElement *adaElement = configFile.FirstChildElement("aplicacao")->FirstChildElement("arquivoDaArena");
-
     string name = adaElement->Attribute("nome");
     string type = adaElement->Attribute("tipo");
     string path = adaElement->Attribute("caminho");
-
-    // string height = adaElement->Attribute("height");
-    // string fill = adaElement->Attribute("fill");
-    // XMLElement *carElement = configFile.FirstChildElement("aplicacao")->FirstChildElement("carro");
-    // carElement->QueryFloatAttribute("velCarro",&PLAYER_SPEED);
-    // carElement->QueryFloatAttribute("velTiro",&PLAYER_BULLET_SPEED);
-    // XMLElement* enemyElement = configFile.FirstChildElement("aplicacao")->FirstChildElement("carroInimigo");
-    // enemyElement->QueryFloatAttribute("freqTiro",&ENEMY_SHOT_FREQ);
-    // enemyElement->QueryFloatAttribute("velCarro",&ENEMY_SPEED);
-    // enemyElement->QueryFloatAttribute("velTiro",&ENEMY_BULLET_SPEED);
 
     return path + name + "." + type;
   }
@@ -85,7 +74,7 @@ Color parseColor(string color)
   return WHITE;
 }
 
-void parseCircle(XMLElement *c)
+void parseCircle(XMLElement *c, int i)
 {
 
   float cx, cy, r;
@@ -102,13 +91,13 @@ void parseCircle(XMLElement *c)
   // Circulo *circ = new Circulo(center, r, fillColor);
   // lutadorSVG = circ;
 
-  if (fill == "green")
+  if (i == 1)
   {
-    lutadorPrincipal = new Lutador(center, r, fillColor,0);
+    lutadorPrincipal = new Lutador(center, r, fillColor, 0);
   }
   else
   {
-    lutadorOponente = new Oponente(center, r, fillColor);
+    lutadorOponente = new Oponente(center, r, fillColor,0);
   }
 }
 
@@ -153,9 +142,9 @@ void parseSVGFile(string filePath)
 
     XMLElement *next = svgElement->FirstChildElement();
 
+    int i = 0;
     while (next != NULL)
     {
-
       string tagType = next->Value();
 
       if (tagType == "rect")
@@ -164,9 +153,9 @@ void parseSVGFile(string filePath)
       }
       else if (tagType == "circle")
       {
-        parseCircle(next);
+        parseCircle(next, i);
+        i = i + 1;
       }
-
       next = next->NextSiblingElement();
     }
   }

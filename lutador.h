@@ -44,6 +44,8 @@ public:
     Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador);
     Point ObtemPosicao();
     GLfloat ObtemAngulo();
+    GLfloat ObtemAnguloJogador();
+    void MudaAnguloJogador(float newangle);
     void MudaPosicao(Point pos);
     void DesenhaLutador();
     void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2);
