@@ -13,7 +13,7 @@
 #include <pwd.h>
 #include "lutador.h"
 #include "oponente.h"
-#include "retangulo.h"
+#include "arena.h"
 #include "circulo.h"
 #include "input.h"
 
@@ -33,7 +33,7 @@ int animate = 0;
 
 Lutador *lutadorPrincipal = NULL;
 Oponente *lutadorOponente = NULL;
-Retangulo *arenaSVG = NULL;
+Arena *arenaSVG = NULL;
 
 // Global to save last mouse position
 float lastMouseX;
@@ -56,23 +56,23 @@ bool playerWon;
 // of the arena is the new origin
 void setNewOrigin()
 {
-	//inicia ponto do lutador 
+	//inicia ponto do lutador
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
 	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_height() / 2));
 	lutadorPoint.y = ((arenaSVG->get_height() / 2) - lutadorPoint.y);
 	lutadorPrincipal->MudaPosicao(lutadorPoint);
 
-	//inicia ponto do oponente 
+	//inicia ponto do oponente
 	Point oponentePoint = lutadorOponente->ObtemPosicao();
 	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_height() / 2));
 	oponentePoint.y = ((arenaSVG->get_height() / 2) - oponentePoint.y);
 	lutadorOponente->MudaPosicao(oponentePoint);
 
-	//coloca os dois de frente 
+	//coloca os dois de frente
 	Point result = {oponentePoint.x - lutadorPoint.x, oponentePoint.y - lutadorPoint.y};
-	double angle = atan2(result.y,result.x);	
-	lutadorPrincipal->MudaAnguloJogador(((angle*180)/M_PI)-90);
-	lutadorOponente->MudaAnguloJogador(-((180-(angle*180/M_PI))*2)-(((angle*180)/M_PI)-90));
+	double angle = atan2(result.y, result.x);
+	lutadorPrincipal->MudaAnguloJogador(((angle * 180) / M_PI) - 90);
+	lutadorOponente->MudaAnguloJogador(-((180 - (angle * 180 / M_PI)) * 2) - (((angle * 180) / M_PI) - 90));
 }
 
 void mouse(int botao, int estado, int x, int y)
@@ -139,6 +139,30 @@ void ResetKeyStatus()
 		keyStatus[i] = 0;
 }
 
+bool dentroArena(Lutador *l, Arena *a)
+{
+	float x1, y1, r;
+	x1 = l->ObtemPosicao().x;
+	y1 = l->ObtemPosicao().y;
+	r = l->ObtemRaio();
+	cout << x1 << endl;
+	cout << y1 << endl;
+	cout << "r" << endl;
+	cout << r << endl;
+	Point p = a->get_vertex();
+	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
+	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
+
+	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void idle(void)
 {
 
@@ -162,14 +186,28 @@ void idle(void)
 	wCheck = keyStatus['W'] == 1 || keyStatus['w'] == 1;
 	sCheck = keyStatus['S'] == 1 || keyStatus['s'] == 1;
 
-	Point delta = lutadorPrincipal->update(wCheck, sCheck, aCheck, dCheck, timeDifference);
-	Point oldPos = lutadorPrincipal->ObtemPosicao();
+	Point dx = lutadorPrincipal->atualizaLutador(wCheck, sCheck, aCheck, dCheck, timeDifference);
+	// Point oldPos = lutadorPrincipal->ObtemPosicao();
 
-	lutadorPrincipal->MoveLutador(delta.x, 0);
-	//tratar colisao
-	lutadorPrincipal->MoveLutador(0, delta.y);
-	//tratar colisao
-	Point newPos = lutadorPrincipal->ObtemPosicao(); //muda posicao lutador
+	lutadorPrincipal->MoveLutador(dx.x, 0);
+
+	Arena *a = arenaSVG;
+	bool estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
+	//tratar colisao com a oponente
+	if (!estaDentro)
+	{
+		lutadorPrincipal->MoveLutador(-dx.x, 0);
+	}
+
+	lutadorPrincipal->MoveLutador(0, dx.y);
+	//tratar colisao oponente
+	estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
+	if (!estaDentro)
+	{
+		lutadorPrincipal->MoveLutador(0, -dx.y);
+	}
+
+	// Point newPos = lutadorPrincipal->ObtemPosicao(); //muda posicao lutador
 
 	//Control animation
 	// if (animate)
@@ -250,7 +288,7 @@ void init(Color bgColor, float xlim1, float xlim2, float ylim1, float ylim2)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	glOrtho(xlim1 / 2, xlim2 / 2, ylim1 / 2, ylim2 / 2, -100.0, 100.0);
+	glOrtho(xlim1 / 2, xlim2 / 2, ylim1 / 2, ylim2 / 2, -100, 100);
 
 	// glMatrixMode(GL_MODELVIEW); // Select the projection matrix
 	// glLoadIdentity();
@@ -298,7 +336,6 @@ int main(int argc, char **argv)
 
 		//Cor de fundo
 		Color bgColor = {arenaSVG->get_color().r, arenaSVG->get_color().g, arenaSVG->get_color().b};
-
 		init(bgColor, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
 		setNewOrigin();
 		glutDisplayFunc(display);

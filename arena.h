@@ -1,5 +1,5 @@
-#ifndef RECT_H_
-#define RECT_H_
+#ifndef ARENA_H_
+#define ARENA_H_
 
 #include <iostream>
 #include <stdio.h>
@@ -8,7 +8,7 @@
 using namespace std;
 
 // This class represents a generic Rectrilateral
-class Retangulo
+class Arena
 {
 	// The vertex corresponds to the lower-left one
 	Point vertex;
@@ -17,16 +17,15 @@ class Retangulo
 	Color color;
 
 public:
-	Retangulo(float x, float y, float width, float height, Color c);
+	Arena(float x, float y, float width, float height, Color c);
 	Point get_vertex() const;
 	float get_width() const;
 	float get_height() const;
 	Color get_color() const;
 	void set_vertex(Point v1);
 	void print() const;
-	friend ostream &operator<<(ostream &output, const Retangulo &c);
-	void desenhaRetangulo(float width, float height, Color c);
-	// void desenhaRetangulo(float width, float height, Color c, float xTrans, float yTrans);
+	friend ostream &operator<<(ostream &output, const Arena &c);
+	void desenhaArena(float width, float height, Color c);
 };
 
-#endif /* RECT_H_ */
+#endif /* ARENA_H_ */

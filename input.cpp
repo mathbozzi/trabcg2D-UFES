@@ -5,7 +5,7 @@
 #include <time.h>
 #include "input.h"
 #include "oponente.h"
-#include "retangulo.h"
+#include "arena.h"
 #include "circulo.h"
 #include "lutador.h"
 #include "tinyxml2.h"
@@ -16,7 +16,7 @@
 using namespace tinyxml2;
 using namespace std;
 
-extern Retangulo *arenaSVG;
+extern Arena *arenaSVG;
 extern Lutador *lutadorPrincipal;
 extern Oponente *lutadorOponente;
 
@@ -112,9 +112,9 @@ void parseRect(XMLElement *ret)
   string fill = ret->Attribute("fill");
   Color fillColor = parseColor(fill);
 
-  Retangulo *retang = new Retangulo(x, y, width, height, fillColor);
+  Arena *arena = new Arena(x, y, width, height, fillColor);
 
-  arenaSVG = retang;
+  arenaSVG = arena;
 }
 
 void parseSVGFile(string filePath)
@@ -122,16 +122,6 @@ void parseSVGFile(string filePath)
 
   XMLDocument arenaFile;
 
-  // Treat case when the filePath has '~'
-  // if (filePath[0] == '~')
-  // {
-  //   filePath.erase(0, 1);
-  //   struct passwd *pw = getpwuid(getuid());
-  //   string userHome = string(pw->pw_dir);
-  //   filePath = userHome + filePath;
-  // }
-
-  // cout << (filePath.c_str()) << endl;
   arenaFile.LoadFile(filePath.c_str());
 
   if (arenaFile.ErrorID() != 0)

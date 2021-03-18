@@ -2,6 +2,7 @@
 #include <math.h>
 #include "lutador.h"
 #include "input.h"
+#include "arena.h"
 
 Lutador::Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador)
 {
@@ -155,11 +156,18 @@ void Lutador::DesenhaLutador()
 //     // gThetaWheel = gThetaWheel + (dx * 200); // falta rodar as rodas
 // }
 
-GLfloat Lutador::ObtemAnguloJogador(){
+GLfloat Lutador::ObtemAnguloJogador()
+{
     return this->lutadorAngulo;
 }
 
-void Lutador::MudaAnguloJogador(float newangle){
+float Lutador::ObtemRaio()
+{
+    return this->raio;
+}
+
+void Lutador::MudaAnguloJogador(float newangle)
+{
     this->lutadorAngulo = newangle;
 }
 
@@ -169,20 +177,23 @@ void Lutador::MoveLutador(float dx, float dy)
     this->centro.y += dy;
 }
 
-Point Lutador::update(bool w, bool s, bool a, bool d, GLdouble timeDiff)
+Point Lutador::atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff)
 {
 
-    float playerSpeed = 0.1*timeDiff;
+    float valocidadeLutador = 0.1 * timeDiff;
     float dx = 0, dy = 0;
     float wheelAngle = this->wheelAngulo;
     float playerAngle = this->lutadorAngulo;
 
-    if (d && wheelAngle > -45 + 1){
+    if (d && wheelAngle > -45 + 1)
+    {
         this->wheelAngulo -= 1;
     }
 
     if (a && wheelAngulo < 45 - 1)
+    {
         this->wheelAngulo += 1;
+    }
 
     if (w)
     {
@@ -197,8 +208,8 @@ Point Lutador::update(bool w, bool s, bool a, bool d, GLdouble timeDiff)
             this->lutadorAngulo -= 1;
         }
 
-        dy = playerSpeed * cos(M_PI * playerAngle / 180.0);
-        dx = -playerSpeed * sin(M_PI * playerAngle / 180.0);
+        dy = valocidadeLutador * cos(M_PI * playerAngle / 180.0);
+        dx = -valocidadeLutador * sin(M_PI * playerAngle / 180.0);
     }
 
     if (s)
@@ -214,14 +225,36 @@ Point Lutador::update(bool w, bool s, bool a, bool d, GLdouble timeDiff)
             this->lutadorAngulo += 1;
         }
 
-        dy = -playerSpeed * cos(M_PI * playerAngle / 180.0);
-        dx = +playerSpeed * sin(M_PI * playerAngle / 180.0);
+        dy = -valocidadeLutador * cos(M_PI * playerAngle / 180.0);
+        dx = +valocidadeLutador * sin(M_PI * playerAngle / 180.0);
     }
-
 
     Point p = {dx, dy};
 
     return p;
 }
+
+// int Lutador::estaDentro(Arena *a)
+// {
+//     // 	float x1,x2,r;
+
+//     // 	x1 = this.;
+//     // 	y1 = this->position.y;
+//     // 	r = this->radius;
+
+//     //   Point ccenter = c->get_center();
+//     //   float cradius = c->get_radius();
+
+//     // 	x2 = ccenter.x;
+//     // 	y2 = ccenter.y;
+//     // 	r2 = cradius;
+
+//     // 	float dist = sqrt(pow(x1-x2,2) + pow(y1-y2,2));
+
+//     // 	if(dist <= r2 - r1)
+//     // 		return true;
+//     // 	else
+//     return 0;
+// }
 
 // glutIgnoreKeyRepeat(true)

@@ -44,6 +44,7 @@ public:
     Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador);
     Point ObtemPosicao();
     GLfloat ObtemAngulo();
+    float ObtemRaio();
     GLfloat ObtemAnguloJogador();
     void MudaAnguloJogador(float newangle);
     void MudaPosicao(Point pos);
@@ -56,8 +57,8 @@ public:
     void CurvaLutador(GLfloat dr);
     // void MoveLutador(GLfloat dx);
     void MoveLutador(float dx, float dy);
-    Point update(bool w, bool s, bool a, bool d, GLdouble timeDiff);
-
+    // int estaDentro(Arena *a);
+    Point atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff);
 };
 
 #endif /* LUTADOR_H */
