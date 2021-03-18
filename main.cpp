@@ -41,6 +41,8 @@ float lastMouseY;
 
 // Global to save the mouse status
 bool mousePressed;
+int xAntigo;
+int yAntigo;
 
 // Says whether the game has started or not
 bool gameStarted = false;
@@ -58,14 +60,14 @@ void setNewOrigin()
 {
 	//inicia ponto do lutador
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
-	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_height() / 2));
-	lutadorPoint.y = ((arenaSVG->get_height() / 2) - lutadorPoint.y);
+	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_width() / 2));
+	lutadorPoint.y = (-(arenaSVG->get_height() / 2) + lutadorPoint.y);
 	lutadorPrincipal->MudaPosicao(lutadorPoint);
 
 	//inicia ponto do oponente
 	Point oponentePoint = lutadorOponente->ObtemPosicao();
-	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_height() / 2));
-	oponentePoint.y = ((arenaSVG->get_height() / 2) - oponentePoint.y);
+	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_width() / 2));
+	oponentePoint.y = (-(arenaSVG->get_height() / 2) + oponentePoint.y);
 	lutadorOponente->MudaPosicao(oponentePoint);
 
 	//coloca os dois de frente
@@ -78,22 +80,35 @@ void setNewOrigin()
 void mouse(int botao, int estado, int x, int y)
 {
 	// Changing y axis orientation
-	y = ViewingHeight - y;
+	y = arenaSVG->get_height() - y;
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
 
 		if (estado == GLUT_DOWN)
-			mousePressed = true;
-		else if (mousePressed)
 		{
-			// In this case the mouse was pressed.
-			// trying to detect a press+release task
-			printf("%i", y);
+			xAntigo = x;
 		}
-	}
+		else if (estado == GLUT_UP)
+		{
+			cout << x - xAntigo << endl;
+		}
 
+		// cout << y << endl;
+		// if (estado == false)
+		// {
+		// 	cout << "soltei" << endl;
+		// 	cout << x << endl;
+		// 	// cout << y << endl;
+		// 	mousePressed = true;
+		// }
+	}
 	glutPostRedisplay();
+}
+
+void MouseAndandoPressionado(int x, int y)
+{
+	printf("Mouse ANDANDO pressionado na janela. Pos: (%d, %d)\n", x, y);
 }
 
 void keyUp(unsigned char key, int x, int y)
@@ -145,22 +160,32 @@ bool dentroArena(Lutador *l, Arena *a)
 	x1 = l->ObtemPosicao().x;
 	y1 = l->ObtemPosicao().y;
 	r = l->ObtemRaio();
-	cout << x1 << endl;
-	cout << y1 << endl;
-	cout << "r" << endl;
-	cout << r << endl;
+
 	Point p = a->get_vertex();
 	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
 	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
 
 	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
-	{
 		return true;
-	}
 	else
-	{
 		return false;
-	}
+}
+
+bool dentroOponente(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
+{
+	float rlp, rlo, dx;
+
+	Point p = lutadorPrincipal->ObtemPosicao();
+	rlp = lutadorPrincipal->ObtemRaio();
+	Point o = lutadorOponente->ObtemPosicao();
+	rlo = lutadorOponente->ObtemRaio();
+
+	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
+
+	if (dx >= rlp * 2 + rlo * 2)
+		return true;
+	else
+		return false;
 }
 
 void idle(void)
@@ -175,39 +200,36 @@ void idle(void)
 	timeDifference = currentTime - previousTime;
 	previousTime = currentTime;
 
-	float wheelAngle = lutadorPrincipal->ObtemAngulo();
 	bool wCheck;
 	bool aCheck;
 	bool sCheck;
 	bool dCheck;
 
-	dCheck = (keyStatus['D'] == 1 || keyStatus['d'] == 1) && wheelAngle > -45 - 1;
-	aCheck = (keyStatus['A'] == 1 || keyStatus['a'] == 1) && wheelAngle < 45 + 1;
+	dCheck = (keyStatus['D'] == 1 || keyStatus['d'] == 1);
+	aCheck = (keyStatus['A'] == 1 || keyStatus['a'] == 1);
 	wCheck = keyStatus['W'] == 1 || keyStatus['w'] == 1;
 	sCheck = keyStatus['S'] == 1 || keyStatus['s'] == 1;
 
 	Point dx = lutadorPrincipal->atualizaLutador(wCheck, sCheck, aCheck, dCheck, timeDifference);
-	// Point oldPos = lutadorPrincipal->ObtemPosicao();
-
-	lutadorPrincipal->MoveLutador(dx.x, 0);
 
 	Arena *a = arenaSVG;
+	lutadorPrincipal->MoveLutador(dx.x, 0);
+
 	bool estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
-	//tratar colisao com a oponente
-	if (!estaDentro)
+	bool estaDentro2 = dentroOponente(lutadorPrincipal, lutadorOponente);
+	if (!estaDentro || !estaDentro2)
 	{
 		lutadorPrincipal->MoveLutador(-dx.x, 0);
 	}
 
 	lutadorPrincipal->MoveLutador(0, dx.y);
-	//tratar colisao oponente
+
 	estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
-	if (!estaDentro)
+	estaDentro2 = dentroOponente(lutadorPrincipal, lutadorOponente);
+	if (!estaDentro || !estaDentro2)
 	{
 		lutadorPrincipal->MoveLutador(0, -dx.y);
 	}
-
-	// Point newPos = lutadorPrincipal->ObtemPosicao(); //muda posicao lutador
 
 	//Control animation
 	// if (animate)
@@ -340,7 +362,8 @@ int main(int argc, char **argv)
 		setNewOrigin();
 		glutDisplayFunc(display);
 		glutKeyboardFunc(keyPress);
-		// glutMouseFunc(mouse);
+		glutMouseFunc(mouse);
+		// glutMotionFunc(MouseAndandoPressionado);
 		glutKeyboardUpFunc(keyUp);
 		glutIdleFunc(idle);
 		glutMainLoop();

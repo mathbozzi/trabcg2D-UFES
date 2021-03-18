@@ -36,14 +36,12 @@ class Lutador
     GLfloat thetaLutador;
     Color cor;
     GLfloat lutadorAngulo;
-    GLfloat wheelAngulo;
     GLfloat theta1;
     GLfloat theta2;
 
 public:
     Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador);
     Point ObtemPosicao();
-    GLfloat ObtemAngulo();
     float ObtemRaio();
     GLfloat ObtemAnguloJogador();
     void MudaAnguloJogador(float newangle);

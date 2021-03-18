@@ -21,6 +21,12 @@ Point Oponente::ObtemPosicao()
     return this->centro;
 }
 
+
+float Oponente::ObtemRaio()
+{
+    return this->raio;
+}
+
 void Oponente::MudaPosicao(Point pos)
 {
     this->centro = pos;

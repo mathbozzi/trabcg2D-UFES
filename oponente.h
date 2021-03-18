@@ -19,6 +19,7 @@ class Oponente
 public:
     Oponente(Point pos, float raio, Color cor, GLfloat thetaOponente);
     Point ObtemPosicao();
+    float ObtemRaio();
     GLfloat ObtemAngulo();
     GLfloat ObtemAnguloJogador();
     void MudaAnguloJogador(float newangle);

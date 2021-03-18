@@ -10,11 +10,9 @@ Lutador::Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador)
     this->centro = pos;
     this->cor = cor;
     this->raio = raio;
-    this->thetaLutador = thetaLutador;
     this->theta1 = -45;
     this->theta2 = 135;
-    this->lutadorAngulo = 0;
-    this->wheelAngulo = 0;
+    this->lutadorAngulo = thetaLutador;
 }
 
 Point Lutador::ObtemPosicao()
@@ -25,11 +23,6 @@ Point Lutador::ObtemPosicao()
 void Lutador::MudaPosicao(Point pos)
 {
     this->centro = pos;
-}
-
-GLfloat Lutador::ObtemAngulo()
-{
-    return this->wheelAngulo;
 }
 
 void Lutador::DesenhaRect(GLint height, GLint width, Color corBraco)
@@ -182,49 +175,26 @@ Point Lutador::atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff
 
     float valocidadeLutador = 0.1 * timeDiff;
     float dx = 0, dy = 0;
-    float wheelAngle = this->wheelAngulo;
     float playerAngle = this->lutadorAngulo;
 
-    if (d && wheelAngle > -45 + 1)
+    if (d)
     {
-        this->wheelAngulo -= 1;
+        this->lutadorAngulo = this->lutadorAngulo - 1;
     }
 
-    if (a && wheelAngulo < 45 - 1)
+    if (a)
     {
-        this->wheelAngulo += 1;
+        this->lutadorAngulo = this->lutadorAngulo + 1;
     }
 
     if (w)
     {
-        if (wheelAngulo > 0)
-        {
-            this->wheelAngulo -= 1;
-            this->lutadorAngulo += 1;
-        }
-        else if (wheelAngulo < 0)
-        {
-            this->wheelAngulo += 1;
-            this->lutadorAngulo -= 1;
-        }
-
         dy = valocidadeLutador * cos(M_PI * playerAngle / 180.0);
         dx = -valocidadeLutador * sin(M_PI * playerAngle / 180.0);
     }
 
     if (s)
     {
-        if (wheelAngulo > 0)
-        {
-            this->wheelAngulo -= 1;
-            this->lutadorAngulo -= 1;
-        }
-        else if (wheelAngulo < 0)
-        {
-            this->wheelAngulo += 1;
-            this->lutadorAngulo += 1;
-        }
-
         dy = -valocidadeLutador * cos(M_PI * playerAngle / 180.0);
         dx = +valocidadeLutador * sin(M_PI * playerAngle / 180.0);
     }
