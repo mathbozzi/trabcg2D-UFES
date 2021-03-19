@@ -121,36 +121,6 @@ void Lutador::DesenhaLutador()
     glPopMatrix();
 }
 
-// void Lutador::RodaBraco1(GLfloat inc)
-// {
-//     gTheta1 = gTheta1 + inc;
-// }
-
-// void Lutador::RodaBraco2(GLfloat inc)
-// {
-//     gTheta2 = gTheta2 + inc;
-// }
-
-// void Lutador::MoveLutador(GLfloat dx)
-// {
-//     glTranslatef(dx * 100, 0, 0);
-// }
-
-// void Lutador::CurvaLutador(GLfloat dr)
-// {
-//     this->thetaLutador = this->thetaLutador + dr * 100;
-//     glTranslatef(dr * 100, 0, 0);
-// }
-
-// void Lutador::GiraLutador(GLfloat dy)
-// {
-//     // glPushMatrix();
-//     this->thetaLutador = this->thetaLutador + dy * 100;
-//     // glTranslatef(0, dy * 100, 0);
-//     // glPopMatrix();
-//     // gThetaWheel = gThetaWheel + (dx * 200); // falta rodar as rodas
-// }
-
 GLfloat Lutador::ObtemAnguloJogador()
 {
     return this->lutadorAngulo;

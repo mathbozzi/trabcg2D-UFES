@@ -12,7 +12,6 @@ class Oponente
     GLfloat thetaOponente;
     Color cor;
     GLfloat OponenteAngulo;
-    GLfloat wheelAngulo;
     GLfloat theta1;
     GLfloat theta2;
 

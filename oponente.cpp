@@ -13,7 +13,6 @@ Oponente::Oponente(Point pos, float raio, Color cor, GLfloat thetaOponente)
     this->theta1 = -45;
     this->theta2 = 135;
     this->OponenteAngulo = 0;
-    this->wheelAngulo = 0;
 }
 
 Point Oponente::ObtemPosicao()
@@ -32,10 +31,6 @@ void Oponente::MudaPosicao(Point pos)
     this->centro = pos;
 }
 
-GLfloat Oponente::ObtemAngulo()
-{
-    return this->wheelAngulo;
-}
 
 void Oponente::DesenhaRect(GLint height, GLint width, Color corBraco)
 {
@@ -131,35 +126,6 @@ void Oponente::DesenhaOponente()
     glPopMatrix();
 }
 
-// void Oponente::RodaBraco1(GLfloat inc)
-// {
-//     gTheta1 = gTheta1 + inc;
-// }
-
-// void Oponente::RodaBraco2(GLfloat inc)
-// {
-//     gTheta2 = gTheta2 + inc;
-// }
-
-// void Oponente::MoveOponente(GLfloat dx)
-// {
-//     glTranslatef(dx * 100, 0, 0);
-// }
-
-// void Oponente::CurvaOponente(GLfloat dr)
-// {
-//     this->thetaOponente = this->thetaOponente + dr * 100;
-//     glTranslatef(dr * 100, 0, 0);
-// }
-
-// void Oponente::GiraOponente(GLfloat dy)
-// {
-//     // glPushMatrix();
-//     this->thetaOponente = this->thetaOponente + dy * 100;
-//     // glTranslatef(0, dy * 100, 0);
-//     // glPopMatrix();
-//     // gThetaWheel = gThetaWheel + (dx * 200); // falta rodar as rodas
-// }
 
 GLfloat Oponente::ObtemAnguloJogador(){
     return this->OponenteAngulo;
@@ -180,46 +146,23 @@ Point Oponente::update(bool w, bool s, bool a, bool d, GLdouble timeDiff)
 
     float playerSpeed = 0.1*timeDiff;
     float dx = 0, dy = 0;
-    float wheelAngle = this->wheelAngulo;
     float playerAngle = this->OponenteAngulo;
 
-    if (d && wheelAngle > -45 + 1){
-        this->wheelAngulo -= 1;
+    if (d){
+        this->OponenteAngulo -= 1;
     }
 
-    if (a && wheelAngulo < 45 - 1)
-        this->wheelAngulo += 1;
+    if (a)
+        this->OponenteAngulo += 1;
 
     if (w)
     {
-        if (wheelAngulo > 0)
-        {
-            this->wheelAngulo -= 1;
-            this->OponenteAngulo += 1;
-        }
-        else if (wheelAngulo < 0)
-        {
-            this->wheelAngulo += 1;
-            this->OponenteAngulo -= 1;
-        }
-
         dy = playerSpeed * cos(M_PI * playerAngle / 180.0);
         dx = -playerSpeed * sin(M_PI * playerAngle / 180.0);
     }
 
     if (s)
     {
-        if (wheelAngulo > 0)
-        {
-            this->wheelAngulo -= 1;
-            this->OponenteAngulo -= 1;
-        }
-        else if (wheelAngulo < 0)
-        {
-            this->wheelAngulo += 1;
-            this->OponenteAngulo += 1;
-        }
-
         dy = -playerSpeed * cos(M_PI * playerAngle / 180.0);
         dx = +playerSpeed * sin(M_PI * playerAngle / 180.0);
     }

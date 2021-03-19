@@ -3,11 +3,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-// Dimensions
-#define paddleHeight 30
-#define baseHeight 20
-#define baseWidth 50
-#define radiusWheel 30
 
 typedef struct tPoint
 {
