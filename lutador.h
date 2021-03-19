@@ -33,11 +33,12 @@ class Lutador
 {
     Point centro;
     float raio;
-    GLfloat thetaLutador;
     Color cor;
     GLfloat lutadorAngulo;
     GLfloat theta1;
     GLfloat theta2;
+    GLfloat theta3;
+    GLfloat theta4;
 
 public:
     Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador);
@@ -46,8 +47,12 @@ public:
     GLfloat ObtemAnguloJogador();
     void MudaAnguloJogador(float newangle);
     void MudaPosicao(Point pos);
+    void MudaTheta1(GLfloat theta1);
+    void MudaTheta2(GLfloat theta2);
+    void MudaTheta3(GLfloat theta3);
+    void MudaTheta4(GLfloat theta4);
     void DesenhaLutador();
-    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2);
+    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2,GLfloat theta3, GLfloat theta4);
     void DesenhaCirc(GLint radius, Color corlutador);
     void DesenhaNariz(GLint radius, Color corlutador);
     void DesenhaRect(GLint height, GLint width, Color corBraco);

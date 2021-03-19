@@ -40,7 +40,6 @@ float lastMouseX;
 float lastMouseY;
 
 // Global to save the mouse status
-bool mousePressed;
 int xAntigo;
 int yAntigo;
 
@@ -84,26 +83,47 @@ void mouse(int botao, int estado, int x, int y)
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
-
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
+			// lutadorPrincipal->MudaTheta1(0);
 		}
 		else if (estado == GLUT_UP)
 		{
-			cout << x - xAntigo << endl;
+			// cout << x - xAntigo << endl;
+			lutadorPrincipal->MudaTheta1(-45);
+			lutadorPrincipal->MudaTheta2(135);
+			lutadorPrincipal->MudaTheta3(-45);
+			lutadorPrincipal->MudaTheta4(135);
 		}
-
-		// cout << y << endl;
-		// if (estado == false)
-		// {
-		// 	cout << "soltei" << endl;
-		// 	cout << x << endl;
-		// 	// cout << y << endl;
-		// 	mousePressed = true;
-		// }
 	}
 	glutPostRedisplay();
+}
+
+void movimentoBraco(int x, int y)
+{
+
+	int newX = x;
+	int newY = arenaSVG->get_height() - y;
+
+	if (x - xAntigo > 0)
+	{
+		if (x - xAntigo <= arenaSVG->get_width() / 2)
+		{
+			// cout << x - xAntigo << endl;
+			lutadorPrincipal->MudaTheta1(-45 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+			lutadorPrincipal->MudaTheta2(135 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+		}
+	}
+	else
+	{
+		if ((x - xAntigo >= (-arenaSVG->get_height() / 2)))
+		{
+			// cout << x - xAntigo << endl;
+			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+		}
+	}
 }
 
 void MouseAndandoPressionado(int x, int y)
@@ -363,6 +383,7 @@ int main(int argc, char **argv)
 		glutDisplayFunc(display);
 		glutKeyboardFunc(keyPress);
 		glutMouseFunc(mouse);
+		glutMotionFunc(movimentoBraco);
 		// glutMotionFunc(MouseAndandoPressionado);
 		glutKeyboardUpFunc(keyUp);
 		glutIdleFunc(idle);

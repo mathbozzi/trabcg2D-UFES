@@ -12,6 +12,8 @@ Lutador::Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador)
     this->raio = raio;
     this->theta1 = -45;
     this->theta2 = 135;
+    this->theta3 = -45;
+    this->theta4 = 135;
     this->lutadorAngulo = thetaLutador;
 }
 
@@ -67,7 +69,7 @@ void Lutador::DesenhaNariz(GLint radius, Color corlutador)
     glPopMatrix();
 }
 
-void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2)
+void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2,GLfloat theta3, GLfloat theta4)
 {
     Color GRAY = {0.5, 0.5, 0.5};
     Color RED = {1, 0, 0};
@@ -91,11 +93,11 @@ void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2)
         glPushMatrix();
         {
             glTranslatef(-(this->raio), 0, 0);
-            glRotatef(-theta1, 0, 0, 1);
+            glRotatef(-theta3, 0, 0, 1);
             DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
 
             glTranslatef(-(this->raio * sqrt(2)), 0, 0);
-            glRotatef(-theta2, 0, 0, 1);
+            glRotatef(-theta4, 0, 0, 1);
             DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
 
             glTranslatef(-(this->raio * sqrt(2)), 0, 0);
@@ -112,7 +114,7 @@ void Lutador::DesenhaLutador()
     {
         glTranslatef(this->centro.x, this->centro.y, 0);
         glRotatef(this->lutadorAngulo, 0, 0, 1);
-        DesenhaBraco(this->centro, theta1, theta2);
+        DesenhaBraco(this->centro, theta1, theta2,theta3,theta4);
         DesenhaNariz(this->raio, this->cor);
         DesenhaCirc(this->raio, this->cor);
     }
@@ -162,6 +164,27 @@ float Lutador::ObtemRaio()
 void Lutador::MudaAnguloJogador(float newangle)
 {
     this->lutadorAngulo = newangle;
+}
+
+
+void Lutador::MudaTheta1(GLfloat theta1)
+{
+    this->theta1 = theta1;
+}
+
+void Lutador::MudaTheta2(GLfloat theta2)
+{
+    this->theta2 = theta2;
+}
+
+void Lutador::MudaTheta3(GLfloat theta3)
+{
+    this->theta3 = theta3;
+}
+
+void Lutador::MudaTheta4(GLfloat theta4)
+{
+    this->theta4 = theta4;
 }
 
 void Lutador::MoveLutador(float dx, float dy)
