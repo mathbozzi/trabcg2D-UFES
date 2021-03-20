@@ -57,7 +57,8 @@ public:
     void GiraLutador(GLfloat dx);
     void CurvaLutador(GLfloat dr);
     void MoveLutador(float dx, float dy);
-    Point verificaSoco(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point verificaSocoDir(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point verificaSocoEsq(float wid, float heig, float thetaBraco, float thetaAntebraco);
     Point atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff);
 };
 

@@ -22,7 +22,7 @@ using namespace std;
 #define INC_KEY 1
 #define INC_KEYIDLE 0.01
 int keyStatus[256];
-static char str[32];
+static char pontos[32];
 void *font = GLUT_BITMAP_9_BY_15;
 
 // Viewing dimensions
@@ -88,8 +88,8 @@ void mouse(int botao, int estado, int x, int y)
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
-		// cout << x << endl;
-		// cout << y << endl;
+		cout << x << endl;
+		cout << y << endl;
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
@@ -125,7 +125,6 @@ void verificaSeAcertouSocoDireito(Point p, Oponente *o)
 		{
 			contaSocoDirLutador += 1;
 			flagSocoDir = false;
-			cout << contaSocoDirLutador << endl;
 		}
 	}
 }
@@ -148,7 +147,8 @@ void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
 		{
 			contaSocoEsqLutador += 1;
 			flagSocoEsq = false;
-			cout << contaSocoEsqLutador << endl;
+			// cout << "contaSocoEsqLutador" << endl;
+			// cout << contaSocoEsqLutador << endl;
 		}
 	}
 }
@@ -163,10 +163,9 @@ void movimentoBraco(int x, int y)
 	{
 		if (x - xAntigo <= arenaSVG->get_width() / 2)
 		{
-			// cout << x - xAntigo << endl;
 			lutadorPrincipal->MudaTheta1(-45 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta2(135 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoDir = lutadorPrincipal->verificaSoco(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(),lutadorPrincipal->ObtemTheta2());
+			Point pSocoDir = lutadorPrincipal->verificaSocoDir(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(),lutadorPrincipal->ObtemTheta2());
 			verificaSeAcertouSocoDireito(pSocoDir, lutadorOponente);
 		}
 	}
@@ -174,10 +173,9 @@ void movimentoBraco(int x, int y)
 	{
 		if ((x - xAntigo >= (-arenaSVG->get_height() / 2)))
 		{
-			// cout << x - xAntigo << endl;
 			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoEsq = lutadorPrincipal->verificaSoco(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta3(),lutadorPrincipal->ObtemTheta4());
+			Point pSocoEsq = lutadorPrincipal->verificaSocoEsq(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, -lutadorPrincipal->ObtemTheta3(),-lutadorPrincipal->ObtemTheta4());
 			verificaSeAcertouSocoEsquerdo(pSocoEsq, lutadorOponente);
 		}
 	}
@@ -198,19 +196,19 @@ void keyPress(unsigned char key, int x, int y)
 		break;
 	case 'a':
 	case 'A':
-		keyStatus[(int)('a')] = 1; //Using keyStatus trick
+		keyStatus[(int)('a')] = 1;
 		break;
 	case 'd':
 	case 'D':
-		keyStatus[(int)('d')] = 1; //Using keyStatus trick
+		keyStatus[(int)('d')] = 1; 
 		break;
 	case 's':
 	case 'S':
-		keyStatus[(int)('s')] = 1; //Using keyStatus trick
+		keyStatus[(int)('s')] = 1;
 		break;
 	case 'w':
 	case 'W':
-		keyStatus[(int)('w')] = 1; //Using keyStatus trick
+		keyStatus[(int)('w')] = 1;
 		break;
 	case 27:
 		exit(0);
@@ -321,39 +319,34 @@ void idle(void)
 	glutPostRedisplay();
 }
 
-void printTimer()
+void printPontuacao()
 {
 
-	static int minutes = 0;
-	static GLdouble seconds = 0;
-	GLdouble currentTime;
-	GLdouble elapsed;
+	// static int minutes = 0;
+	// static GLdouble seconds = 0;
+	// GLdouble currentTime;
+	// GLdouble elapsed;
 
-	if (gameStarted && !gameOver)
+	// if (gameStarted && !gameOver)
+	// {
+	// 	// Get time from the beginning of the game
+	// 	currentTime = glutGet(GLUT_ELAPSED_TIME);
+
+	// 	elapsed = currentTime - timeGameStarted;
+	// 	minutes = (int)elapsed / 60000;
+	// 	seconds = elapsed / 1000 - minutes * 60;
+	// }
+
+	char *pontuacao;
+	sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador+contaSocoEsqLutador, 0);
+	glColor3f(0.0, 0.0, 0.0);
+	glRasterPos2f(arenaSVG->get_width() / 2 - 27 * 9, arenaSVG->get_height() / 2 - 20);
+
+	pontuacao = pontos;
+	while (*pontuacao)
 	{
-		// Get time from the beginning of the game
-		currentTime = glutGet(GLUT_ELAPSED_TIME);
-
-		elapsed = currentTime - timeGameStarted;
-		minutes = (int)elapsed / 60000;
-		seconds = elapsed / 1000 - minutes * 60;
-	}
-
-	//Create a string to be printed
-	char *tmpStr;
-	sprintf(str, "Time: %2d:%02.2f", minutes, seconds);
-	//Define the position to start printing
-	glColor3f(1.0, 1.0, 1.0);
-	glRasterPos2f(ViewingHeight / 2 - 15 * 9, ViewingHeight / 2 - 20);
-	//Print  the first Char with a certain font
-	//glutBitmapLength(font,(unsigned char*)str);
-	tmpStr = str;
-	//Print each of the other Char at time
-
-	while (*tmpStr)
-	{
-		glutBitmapCharacter(font, *tmpStr);
-		tmpStr++;
+		glutBitmapCharacter(font, *pontuacao);
+		pontuacao++;
 	}
 }
 
@@ -365,7 +358,7 @@ void display(void)
 	lutadorPrincipal->DesenhaLutador();
 	lutadorOponente->DesenhaOponente();
 
-	// printPontuacao();
+	printPontuacao();
 	glFlush();
 
 	glutSwapBuffers(); // Desenha the new frame of the game.
