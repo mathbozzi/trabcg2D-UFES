@@ -3,7 +3,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-
 typedef struct tPoint
 {
     float x;
@@ -46,16 +45,19 @@ public:
     void MudaTheta2(GLfloat theta2);
     void MudaTheta3(GLfloat theta3);
     void MudaTheta4(GLfloat theta4);
+    float ObtemTheta1();
+    float ObtemTheta2();
+    float ObtemTheta3();
+    float ObtemTheta4();
     void DesenhaLutador();
-    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2,GLfloat theta3, GLfloat theta4);
+    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
     void DesenhaCirc(GLint radius, Color corlutador);
     void DesenhaNariz(GLint radius, Color corlutador);
     void DesenhaRect(GLint height, GLint width, Color corBraco);
     void GiraLutador(GLfloat dx);
     void CurvaLutador(GLfloat dr);
-    // void MoveLutador(GLfloat dx);
     void MoveLutador(float dx, float dy);
-    // int estaDentro(Arena *a);
+    Point verificaSoco(float wid, float heig, float thetaBraco, float thetaAntebraco);
     Point atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff);
 };
 

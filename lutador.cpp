@@ -69,7 +69,7 @@ void Lutador::DesenhaNariz(GLint radius, Color corlutador)
     glPopMatrix();
 }
 
-void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2,GLfloat theta3, GLfloat theta4)
+void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4)
 {
     Color GRAY = {0.5, 0.5, 0.5};
     Color RED = {1, 0, 0};
@@ -114,7 +114,7 @@ void Lutador::DesenhaLutador()
     {
         glTranslatef(this->centro.x, this->centro.y, 0);
         glRotatef(this->lutadorAngulo, 0, 0, 1);
-        DesenhaBraco(this->centro, theta1, theta2,theta3,theta4);
+        DesenhaBraco(this->centro, theta1, theta2, theta3, theta4);
         DesenhaNariz(this->raio, this->cor);
         DesenhaCirc(this->raio, this->cor);
     }
@@ -131,11 +131,30 @@ float Lutador::ObtemRaio()
     return this->raio;
 }
 
+float Lutador::ObtemTheta1()
+{
+    return this->theta1;
+}
+
+float Lutador::ObtemTheta2()
+{
+    return this->theta2;
+}
+
+float Lutador::ObtemTheta3()
+{
+    return this->theta3;
+}
+
+float Lutador::ObtemTheta4()
+{
+    return this->theta4;
+}
+
 void Lutador::MudaAnguloJogador(float newangle)
 {
     this->lutadorAngulo = newangle;
 }
-
 
 void Lutador::MudaTheta1(GLfloat theta1)
 {
@@ -197,27 +216,55 @@ Point Lutador::atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff
     return p;
 }
 
-// int Lutador::estaDentro(Arena *a)
-// {
-//     // 	float x1,x2,r;
+Point Lutador::verificaSoco(float wid, float heig, float thetaBraco,float thetaAntebraco)
+{
+    Point luvaDir = {0, 0};
 
-//     // 	x1 = this.;
-//     // 	y1 = this->position.y;
-//     // 	r = this->radius;
+    // antebraço + rotação
+    Point a = {(this->raio * (float)sqrt(2)), 0};
+    luvaDir = translateFrom(luvaDir, a);
+    luvaDir = rotateBy(luvaDir, thetaAntebraco);
 
-//     //   Point ccenter = c->get_center();
-//     //   float cradius = c->get_radius();
+    // braco direito ate cotovelo + rotacao
+    Point b = {(float)sqrt(2.0) * this->raio, 0};
+    luvaDir = translateFrom(luvaDir, b);
+    luvaDir = rotateBy(luvaDir, thetaBraco);
 
-//     // 	x2 = ccenter.x;
-//     // 	y2 = ccenter.y;
-//     // 	r2 = cradius;
+    //centro(rodado) +raio
+    Point c = {this->raio, 0};
+    luvaDir = translateFrom(luvaDir, c);
 
-//     // 	float dist = sqrt(pow(x1-x2,2) + pow(y1-y2,2));
+    //angulo jogador central
+    luvaDir = rotateBy(luvaDir, this->lutadorAngulo);
 
-//     // 	if(dist <= r2 - r1)
-//     // 		return true;
-//     // 	else
-//     return 0;
-// }
+    //centro
+    luvaDir = translateFrom(luvaDir, this->ObtemPosicao());
 
+    luvaDir = {luvaDir.x + wid, luvaDir.y + heig};
+    // printf("%f,%f\n", luvaDir.x, luvaDir.y);
+    return luvaDir;
+}
+
+Point translateFrom(Point p, Point oldOrigin)
+{
+    Point translated = p;
+
+    translated.x += oldOrigin.x;
+    translated.y += oldOrigin.y;
+
+    return translated;
+}
+
+Point rotateBy(Point p, float angle)
+{
+    Point rotated;
+    float angleRad = M_PI * angle / 180.0;
+    float sine = sin(angleRad);
+    float cossine = cos(angleRad);
+
+    rotated.x = p.x * cos(M_PI * angle / 180.0) - p.y * sin(M_PI * angle / 180.0);
+    rotated.y = p.x * sin(M_PI * angle / 180.0) + p.y * cos(M_PI * angle / 180.0);
+
+    return rotated;
+}
 // glutIgnoreKeyRepeat(true)

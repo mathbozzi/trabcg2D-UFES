@@ -47,6 +47,11 @@ int yAntigo;
 bool gameStarted = false;
 GLdouble timeGameStarted;
 
+bool flagSocoDir = false;
+bool flagSocoEsq = false;
+int contaSocoDirLutador = 0;
+int contaSocoEsqLutador = 0;
+
 // Says if the game is over
 bool gameOver = false;
 
@@ -83,6 +88,8 @@ void mouse(int botao, int estado, int x, int y)
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
+		// cout << x << endl;
+		// cout << y << endl;
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
@@ -100,6 +107,52 @@ void mouse(int botao, int estado, int x, int y)
 	glutPostRedisplay();
 }
 
+void verificaSeAcertouSocoDireito(Point p, Oponente *o)
+{
+
+	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
+	{
+		flagSocoDir = true;
+	}
+	else
+	{
+		if (flagSocoDir)
+		{
+			contaSocoDirLutador += 1;
+			flagSocoDir = false;
+			cout << contaSocoDirLutador << endl;
+		}
+	}
+}
+
+void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
+{
+
+	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
+	{
+		flagSocoEsq = true;
+	}
+	else
+	{
+		if (flagSocoEsq)
+		{
+			contaSocoEsqLutador += 1;
+			flagSocoEsq = false;
+			cout << contaSocoEsqLutador << endl;
+		}
+	}
+}
+
 void movimentoBraco(int x, int y)
 {
 
@@ -113,6 +166,8 @@ void movimentoBraco(int x, int y)
 			// cout << x - xAntigo << endl;
 			lutadorPrincipal->MudaTheta1(-45 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta2(135 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+			Point pSocoDir = lutadorPrincipal->verificaSoco(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(),lutadorPrincipal->ObtemTheta2());
+			verificaSeAcertouSocoDireito(pSocoDir, lutadorOponente);
 		}
 	}
 	else
@@ -122,13 +177,10 @@ void movimentoBraco(int x, int y)
 			// cout << x - xAntigo << endl;
 			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
+			Point pSocoEsq = lutadorPrincipal->verificaSoco(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta3(),lutadorPrincipal->ObtemTheta4());
+			verificaSeAcertouSocoEsquerdo(pSocoEsq, lutadorOponente);
 		}
 	}
-}
-
-void MouseAndandoPressionado(int x, int y)
-{
-	printf("Mouse ANDANDO pressionado na janela. Pos: (%d, %d)\n", x, y);
 }
 
 void keyUp(unsigned char key, int x, int y)
@@ -384,7 +436,6 @@ int main(int argc, char **argv)
 		glutKeyboardFunc(keyPress);
 		glutMouseFunc(mouse);
 		glutMotionFunc(movimentoBraco);
-		// glutMotionFunc(MouseAndandoPressionado);
 		glutKeyboardUpFunc(keyUp);
 		glutIdleFunc(idle);
 		glutMainLoop();
