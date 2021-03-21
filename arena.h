@@ -14,18 +14,18 @@ class Arena
 	Point vertex;
 	float width;
 	float height;
-	Color color;
+	Cor cor;
 
 public:
-	Arena(float x, float y, float width, float height, Color c);
+	Arena(float x, float y, float width, float height, Cor c);
 	Point get_vertex() const;
 	float get_width() const;
 	float get_height() const;
-	Color get_color() const;
+	Cor get_color() const;
 	void set_vertex(Point v1);
 	void print() const;
 	friend ostream &operator<<(ostream &output, const Arena &c);
-	void desenhaArena(float width, float height, Color c);
+	void desenhaArena(float width, float height, Cor c);
 };
 
 #endif /* ARENA_H_ */

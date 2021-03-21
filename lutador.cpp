@@ -4,7 +4,7 @@
 #include "input.h"
 #include "arena.h"
 
-Lutador::Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador)
+Lutador::Lutador(Point pos, float raio, Cor cor, GLfloat thetaLutador)
 {
 
     this->centro = pos;
@@ -27,7 +27,7 @@ void Lutador::MudaPosicao(Point pos)
     this->centro = pos;
 }
 
-void Lutador::DesenhaRect(GLint height, GLint width, Color corBraco)
+void Lutador::DesenhaRect(GLint height, GLint width, Cor corBraco)
 {
     glColor3f(corBraco.r, corBraco.g, corBraco.b);
 
@@ -45,7 +45,7 @@ void Lutador::DesenhaRect(GLint height, GLint width, Color corBraco)
     glEnd();
 }
 
-void Lutador::DesenhaCirc(GLint radius, Color corlutador)
+void Lutador::DesenhaCirc(GLint radius, Cor corlutador)
 {
 
     GLfloat circle_points = 50;
@@ -59,7 +59,7 @@ void Lutador::DesenhaCirc(GLint radius, Color corlutador)
     glEnd();
 }
 
-void Lutador::DesenhaNariz(GLint radius, Color corlutador)
+void Lutador::DesenhaNariz(GLint radius, Cor corlutador)
 {
     glPushMatrix();
     {
@@ -71,8 +71,8 @@ void Lutador::DesenhaNariz(GLint radius, Color corlutador)
 
 void Lutador::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4)
 {
-    Color GRAY = {0.5, 0.5, 0.5};
-    Color RED = {1, 0, 0};
+    Cor GRAY = {0.5, 0.5, 0.5};
+    Cor RED = {1, 0, 0};
     glPushMatrix();
     {
         glPushMatrix();
@@ -185,9 +185,8 @@ void Lutador::MoveLutador(float dx, float dy)
 Point Lutador::atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff)
 {
 
-    float valocidadeLutador = 0.1 * timeDiff;
     float dx = 0, dy = 0;
-    float playerAngle = this->lutadorAngulo;
+    float velocidadeLutador = 0.1 * timeDiff;
 
     if (d)
     {
@@ -201,14 +200,14 @@ Point Lutador::atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff
 
     if (w)
     {
-        dy = valocidadeLutador * cos(M_PI * playerAngle / 180.0);
-        dx = -valocidadeLutador * sin(M_PI * playerAngle / 180.0);
+        dy = velocidadeLutador * cos(M_PI * this->lutadorAngulo / 180.0);
+        dx = -velocidadeLutador * sin(M_PI * this->lutadorAngulo / 180.0);
     }
 
     if (s)
     {
-        dy = -valocidadeLutador * cos(M_PI * playerAngle / 180.0);
-        dx = +valocidadeLutador * sin(M_PI * playerAngle / 180.0);
+        dy = -velocidadeLutador * cos(M_PI * this->lutadorAngulo / 180.0);
+        dx = +velocidadeLutador * sin(M_PI * this->lutadorAngulo / 180.0);
     }
 
     Point p = {dx, dy};

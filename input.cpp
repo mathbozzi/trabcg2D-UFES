@@ -20,84 +20,55 @@ extern Arena *arenaSVG;
 extern Lutador *lutadorPrincipal;
 extern Oponente *lutadorOponente;
 
-const Color BLACK = {0, 0, 0};
-const Color BLUE = {0, 0, 1};
-const Color CYAN = {0, 1, 1};
-const Color DARK_GRAY = {0.2, 0.2, 0.2};
-const Color GRAY = {0.5, 0.5, 0.5};
-const Color GREEN = {0, 1, 0};
-const Color LIGHT_GRAY = {0.9, 0.9, 0.9};
-const Color MAGENTA = {1, 0, 1};
-const Color RED = {1, 0, 0};
-const Color WHITE = {1, 1, 1};
-const Color YELLOW = {1, 1, 0};
-
 string parseXMLFile(string filePath)
 {
+  XMLDocument arquivoXML;
+  arquivoXML.LoadFile(filePath.c_str());
 
-  XMLDocument configFile;
-
-  configFile.LoadFile(filePath.c_str());
-
-  if (configFile.ErrorID() != 0)
+  if (arquivoXML.ErrorID() != 0)
     cout << "Erro no arquivo de entrada config.xml" << endl;
   else
   {
-
-    XMLElement *adaElement = configFile.FirstChildElement("aplicacao")->FirstChildElement("arquivoDaArena");
-    string name = adaElement->Attribute("nome");
-    string type = adaElement->Attribute("tipo");
-    string path = adaElement->Attribute("caminho");
-
-    return path + name + "." + type;
+    XMLElement *adaElement = arquivoXML.FirstChildElement("boxe")->FirstChildElement("arquivoDaArena");
+    string nome = adaElement->Attribute("nomeArena");
+    string tipo = adaElement->Attribute("tipo");
+    string caminho = adaElement->Attribute("caminho");
+    return caminho + nome + "." + tipo;
   }
   return "";
-}
-
-Color parseColor(string color)
-{
-  if (color == "black")
-    return BLACK;
-  else if (color == "blue")
-    return BLUE;
-  else if (color == "green")
-    return GREEN;
-  else if (color == "cyan")
-    return CYAN;
-  else if (color == "red")
-    return RED;
-  else if (color == "magenta")
-    return MAGENTA;
-  else if (color == "yellow")
-    return YELLOW;
-
-  return WHITE;
 }
 
 void parseCircle(XMLElement *c, int i)
 {
 
   float cx, cy, r;
+  Cor cor;
   c->QueryFloatAttribute("cx", &cx);
   c->QueryFloatAttribute("cy", &cy);
   c->QueryFloatAttribute("r", &r);
-
-  string fill = c->Attribute("fill");
-  // string id = c->Attribute("id");
-
   Point center = {cx, cy};
-  Color fillColor = parseColor(fill);
+  string fill = c->Attribute("fill");
 
-  // Circulo *circ = new Circulo(center, r, fillColor);
-  // lutadorSVG = circ;
+  if (fill == "red")
+  {
+    cor = {1.0, 0.0, 0.0};
+  }
+  else if (fill == "blue")
+  {
+    cor = {0.0, 0.0, 1.0};
+  }
+  else if (fill == "green")
+  {
+    cor = {0.0, 1.0, 0.0};
+  }
 
   if (i == 1)
   {
-    lutadorPrincipal = new Lutador(center, r, fillColor, 0);
+    lutadorPrincipal = new Lutador(center, r, cor, 0);
   }
   else
   {
-    lutadorOponente = new Oponente(center, r, fillColor,0);
+    lutadorOponente = new Oponente(center, r, cor, 0);
   }
 }
 
@@ -105,48 +76,59 @@ void parseRect(XMLElement *ret)
 {
 
   float x, y, width, height;
+  Cor cor;
   ret->QueryFloatAttribute("x", &x);
   ret->QueryFloatAttribute("y", &y);
   ret->QueryFloatAttribute("width", &width);
   ret->QueryFloatAttribute("height", &height);
   string fill = ret->Attribute("fill");
-  Color fillColor = parseColor(fill);
 
-  Arena *arena = new Arena(x, y, width, height, fillColor);
+  if (fill == "red")
+  {
+    cor = {1.0, 0.0, 0.0};
+  }
+  else if (fill == "blue")
+  {
+    cor = {0.0, 0.0, 1.0};
+  }
+  else if (fill == "green")
+  {
+    cor = {0.0, 1.0, 0.0};
+  }
 
+  Arena *arena = new Arena(x, y, width, height, cor);
   arenaSVG = arena;
 }
 
 void parseSVGFile(string filePath)
 {
+  XMLDocument arquivoArena;
 
-  XMLDocument arenaFile;
+  arquivoArena.LoadFile(filePath.c_str());
 
-  arenaFile.LoadFile(filePath.c_str());
-
-  if (arenaFile.ErrorID() != 0)
+  if (arquivoArena.ErrorID() != 0)
     cout << "Erro no arquivo de entrada config.xml" << endl;
   else
   {
-    XMLElement *svgElement = arenaFile.FirstChildElement("svg");
+    XMLElement *svg = arquivoArena.FirstChildElement("svg");
 
-    XMLElement *next = svgElement->FirstChildElement();
+    XMLElement *arqSVG = svg->FirstChildElement();
 
     int i = 0;
-    while (next != NULL)
+    while (arqSVG != NULL)
     {
-      string tagType = next->Value();
+      string tagType = arqSVG->Value();
 
       if (tagType == "rect")
       {
-        parseRect(next);
+        parseRect(arqSVG);
       }
       else if (tagType == "circle")
       {
-        parseCircle(next, i);
+        parseCircle(arqSVG, i);
         i = i + 1;
       }
-      next = next->NextSiblingElement();
+      arqSVG = arqSVG->NextSiblingElement();
     }
   }
 }

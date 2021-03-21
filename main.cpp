@@ -19,15 +19,9 @@
 
 using namespace std;
 
-#define INC_KEY 1
-#define INC_KEYIDLE 0.01
 int keyStatus[256];
 static char pontos[32];
 void *font = GLUT_BITMAP_9_BY_15;
-
-// Viewing dimensions
-const GLint ViewingWidth = 600;
-const GLint ViewingHeight = 600;
 
 int animate = 0;
 
@@ -35,32 +29,20 @@ Lutador *lutadorPrincipal = NULL;
 Oponente *lutadorOponente = NULL;
 Arena *arenaSVG = NULL;
 
-// Global to save last mouse position
-float lastMouseX;
-float lastMouseY;
-
-// Global to save the mouse status
 int xAntigo;
 int yAntigo;
 
-// Says whether the game has started or not
-bool gameStarted = false;
 GLdouble timeGameStarted;
+
+bool lutadorGanhou = false;
+bool oponenteGanhou = false;
 
 bool flagSocoDir = false;
 bool flagSocoEsq = false;
 int contaSocoDirLutador = 0;
 int contaSocoEsqLutador = 0;
 
-// Says if the game is over
-bool gameOver = false;
-
-// Says if the player has won or lost
-bool playerWon;
-
-// This function calculates the deltas to adjust all coordinates so the center
-// of the arena is the new origin
-void setNewOrigin()
+void posInicialLutadores()
 {
 	//inicia ponto do lutador
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
@@ -88,8 +70,8 @@ void mouse(int botao, int estado, int x, int y)
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
-		cout << x << endl;
-		cout << y << endl;
+		// cout << x << endl;
+		// cout << y << endl;
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
@@ -147,8 +129,6 @@ void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
 		{
 			contaSocoEsqLutador += 1;
 			flagSocoEsq = false;
-			// cout << "contaSocoEsqLutador" << endl;
-			// cout << contaSocoEsqLutador << endl;
 		}
 	}
 }
@@ -165,7 +145,7 @@ void movimentoBraco(int x, int y)
 		{
 			lutadorPrincipal->MudaTheta1(-45 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta2(135 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoDir = lutadorPrincipal->verificaSocoDir(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(),lutadorPrincipal->ObtemTheta2());
+			Point pSocoDir = lutadorPrincipal->verificaSocoDir(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(), lutadorPrincipal->ObtemTheta2());
 			verificaSeAcertouSocoDireito(pSocoDir, lutadorOponente);
 		}
 	}
@@ -175,7 +155,7 @@ void movimentoBraco(int x, int y)
 		{
 			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoEsq = lutadorPrincipal->verificaSocoEsq(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, -lutadorPrincipal->ObtemTheta3(),-lutadorPrincipal->ObtemTheta4());
+			Point pSocoEsq = lutadorPrincipal->verificaSocoEsq(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, -lutadorPrincipal->ObtemTheta3(), -lutadorPrincipal->ObtemTheta4());
 			verificaSeAcertouSocoEsquerdo(pSocoEsq, lutadorOponente);
 		}
 	}
@@ -200,7 +180,7 @@ void keyPress(unsigned char key, int x, int y)
 		break;
 	case 'd':
 	case 'D':
-		keyStatus[(int)('d')] = 1; 
+		keyStatus[(int)('d')] = 1;
 		break;
 	case 's':
 	case 'S':
@@ -301,75 +281,72 @@ void idle(void)
 		lutadorPrincipal->MoveLutador(0, -dx.y);
 	}
 
-	//Control animation
-	// if (animate)
-	// {
-	// 	static int dir = 1;
-	// 	if (lutadorOponente->ObtemX() > (ViewingWidth / 2))
-	// 	{
-	// 		dir *= -1;
-	// 	}
-	// 	else if (lutadorOponente->ObtemX() < -(ViewingWidth / 2))
-	// 	{
-	// 		dir *= -1;
-	// 	}
-	// 	lutadorOponente->MoveEmX(dir * INC_KEYIDLE);
-	// }
+	if (animate && !lutadorGanhou)
+	{
+		Point result = {lutadorOponente->ObtemPosicao().x - lutadorPrincipal->ObtemPosicao().x,
+						lutadorOponente->ObtemPosicao().y - lutadorPrincipal->ObtemPosicao().y};
+		double angle = atan2(result.y, result.x);
+		lutadorOponente->MudaAnguloJogador(-((180 - (angle * 180 / M_PI)) * 2) - (((angle * 180) / M_PI) - 90));
+
+		lutadorOponente->MoveOponente(0.1,0);
+		lutadorOponente->MoveOponente(0,0.1);
+
+
+	}
 
 	glutPostRedisplay();
 }
 
 void printPontuacao()
 {
-
-	// static int minutes = 0;
-	// static GLdouble seconds = 0;
-	// GLdouble currentTime;
-	// GLdouble elapsed;
-
-	// if (gameStarted && !gameOver)
-	// {
-	// 	// Get time from the beginning of the game
-	// 	currentTime = glutGet(GLUT_ELAPSED_TIME);
-
-	// 	elapsed = currentTime - timeGameStarted;
-	// 	minutes = (int)elapsed / 60000;
-	// 	seconds = elapsed / 1000 - minutes * 60;
-	// }
-
-	char *pontuacao;
-	sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador+contaSocoEsqLutador, 0);
-	glColor3f(0.0, 0.0, 0.0);
-	glRasterPos2f(arenaSVG->get_width() / 2 - 27 * 9, arenaSVG->get_height() / 2 - 20);
-
-	pontuacao = pontos;
-	while (*pontuacao)
+	if (contaSocoDirLutador + contaSocoEsqLutador >= 10)
 	{
-		glutBitmapCharacter(font, *pontuacao);
-		pontuacao++;
+		lutadorGanhou = true;
+		char *pontuacao;
+		sprintf(pontos, "PARABENS, VOCE GANHOU! :D");
+		glColor3f(0.0, 0.0, 0.0);
+		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+		pontuacao = pontos;
+		while (*pontuacao)
+		{
+			glutBitmapCharacter(font, *pontuacao);
+			pontuacao++;
+		}
+	}
+	else
+	{
+		char *pontuacao;
+		sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador + contaSocoEsqLutador, 0);
+		glColor3f(0.0, 0.0, 0.0);
+		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+		pontuacao = pontos;
+		while (*pontuacao)
+		{
+			glutBitmapCharacter(font, *pontuacao);
+			pontuacao++;
+		}
 	}
 }
 
 void display(void)
 {
-	// Clear the screen.
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	lutadorPrincipal->DesenhaLutador();
 	lutadorOponente->DesenhaOponente();
-
 	printPontuacao();
-	glFlush();
 
-	glutSwapBuffers(); // Desenha the new frame of the game.
+	glFlush();
+	glutSwapBuffers();
 }
 
-void init(Color bgColor, float xlim1, float xlim2, float ylim1, float ylim2)
+void init(Cor bgCor, float xlim1, float xlim2, float ylim1, float ylim2)
 {
-	/*select background color */
-	float r = bgColor.r;
-	float g = bgColor.g;
-	float b = bgColor.b;
+	float r = bgCor.r;
+	float g = bgCor.g;
+	float b = bgCor.b;
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, 0.0);
 
 	glMatrixMode(GL_PROJECTION);
@@ -377,54 +354,38 @@ void init(Color bgColor, float xlim1, float xlim2, float ylim1, float ylim2)
 
 	glOrtho(xlim1 / 2, xlim2 / 2, ylim1 / 2, ylim2 / 2, -100, 100);
 
-	// glMatrixMode(GL_MODELVIEW); // Select the projection matrix
-	// glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 int main(int argc, char **argv)
 {
-	string filePath;
-
-	// Confere se o arquivo XML foi passado como parametro de entrada
+	string arquivo;
 	if (argc > 1)
 	{
-		filePath = argv[1];
-		filePath += "config.xml";
+		arquivo = argv[1];
+		arquivo += "config.xml";
 	}
 	else
 	{
-		cout << "Por favor entre com o arquivo XML" << endl;
-		cout << "Ex: trabalhocg <caminho para pasta de config.xml>" << endl;
+		cout << "Digite: ./trabalhocg ./" << endl;
 		return 0;
 	}
-
-	if (filePath != "")
+	if (arquivo != "")
 	{
-		string arenaFile = parseXMLFile(filePath);
+		string arenaFile = parseXMLFile(arquivo);
 
 		if (arenaFile != "")
 			parseSVGFile(arenaFile);
 
 		glutInit(&argc, argv);
-
-		// Utilizar Double Buffer e esquema de cores RGB
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-
-		// cout << arenaSVG->get_height() <<endl;
-		// cout << arenaSVG->get_width() <<endl;
-
 		glutInitWindowSize(arenaSVG->get_width(), arenaSVG->get_height());
-
-		// Escolher posicao da janela na tela
 		glutInitWindowPosition(100, 50);
-
-		// Definindo o titulo da janela
 		glutCreateWindow("Ring");
-
-		//Cor de fundo
-		Color bgColor = {arenaSVG->get_color().r, arenaSVG->get_color().g, arenaSVG->get_color().b};
-		init(bgColor, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
-		setNewOrigin();
+		Cor bgCor = {arenaSVG->get_color().r, arenaSVG->get_color().g, arenaSVG->get_color().b};
+		init(bgCor, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
+		posInicialLutadores();
 		glutDisplayFunc(display);
 		glutKeyboardFunc(keyPress);
 		glutMouseFunc(mouse);

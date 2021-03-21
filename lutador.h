@@ -9,12 +9,12 @@ typedef struct tPoint
     float y;
 } Point;
 
-typedef struct tColor
+typedef struct tCor
 {
     float r;
     float g;
     float b;
-} Color;
+} Cor;
 
 // Angle must be in degrees
 Point rotateBy(Point p, float angle);
@@ -27,7 +27,7 @@ class Lutador
 {
     Point centro;
     float raio;
-    Color cor;
+    Cor cor;
     GLfloat lutadorAngulo;
     GLfloat theta1;
     GLfloat theta2;
@@ -35,7 +35,7 @@ class Lutador
     GLfloat theta4;
 
 public:
-    Lutador(Point pos, float raio, Color cor, GLfloat thetaLutador);
+    Lutador(Point pos, float raio, Cor cor, GLfloat thetaLutador);
     Point ObtemPosicao();
     float ObtemRaio();
     GLfloat ObtemAnguloJogador();
@@ -51,9 +51,9 @@ public:
     float ObtemTheta4();
     void DesenhaLutador();
     void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
-    void DesenhaCirc(GLint radius, Color corlutador);
-    void DesenhaNariz(GLint radius, Color corlutador);
-    void DesenhaRect(GLint height, GLint width, Color corBraco);
+    void DesenhaCirc(GLint radius, Cor corlutador);
+    void DesenhaNariz(GLint radius, Cor corlutador);
+    void DesenhaRect(GLint height, GLint width, Cor corBraco);
     void GiraLutador(GLfloat dx);
     void CurvaLutador(GLfloat dr);
     void MoveLutador(float dx, float dy);

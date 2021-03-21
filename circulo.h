@@ -11,26 +11,25 @@ class Circulo {
 
 	Point center;
 	float radius;
-	Color color;
+	Cor cor;
 
 	public:
-	Circulo(Point center, float r, Color c);
+	Circulo(Point center, float r, Cor c);
 	void desenha ();
 	void desenha (float deltaX, float deltaY);
 	Point get_center() const;
 	void set_center(Point c);
 	float get_radius() const;
 	void set_radius(float r);
-	Color get_color() const;
-	void set_color(Color c);
+	Cor get_color() const;
+	void set_color(Cor c);
 	bool outsideOf(Circulo* c) const;
 	bool insideOf(Circulo* c) const;
 	void print() const;
 
-	friend ostream& operator<<(ostream& output, const Circulo& c);
 };
 
-void desenhaCirculo (float radius, Color color);
-void desenhaCirculo (float radius, Point center, Color color);
+void desenhaCirculo (float radius, Cor cor);
+void desenhaCirculo (float radius, Point center, Cor cor);
 
 #endif /* CIRCULO_H_ */

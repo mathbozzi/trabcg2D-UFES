@@ -9,16 +9,16 @@
 
 using namespace std;
 
-Circulo::Circulo(Point center, float r, Color c){
+Circulo::Circulo(Point center, float r, Cor c){
 	this->center = center;
 	this->radius = r;
-	this->color = c;
+	this->cor = c;
 }
 
 void Circulo::desenha (){
 	glPushMatrix();
 
-	glColor3f(this->color.r,this->color.g,this->color.b);
+	glColor3f(this->cor.r,this->cor.g,this->cor.b);
 
 
 	glTranslatef(this->center.x,this->center.y,1);
@@ -42,7 +42,7 @@ void Circulo::desenha (){
 void Circulo::desenha (float deltaX, float deltaY){
 	glPushMatrix();
 
-	glColor3f(this->color.r,this->color.g,this->color.b);
+	glColor3f(this->cor.r,this->cor.g,this->cor.b);
 
 
 	glTranslatef(this->center.x + deltaX,-this->center.y + deltaY,1);
@@ -79,38 +79,18 @@ void Circulo::set_radius(float r){
 	this->radius = r;
 }
 
-Color Circulo::get_color() const{
-	return this->color;
+Cor Circulo::get_color() const{
+	return this->cor;
 }
 
-void Circulo::set_color(Color c){
-	this->color = c;
-}
-
-void Circulo::print() const{
-
-	float r = this->color.r;
-	float g = this->color.g;
-	float b = this->color.b;
-
-	cout << "< Circulo >" << endl;
-	printf("center: (%f,%f)\n",this->center.x,this->center.y);
-	printf("radius: %f\n",this->radius);
-	printf("Color: (%f,%f,%f)\n",r,g,b);
-}
-
-ostream& operator<<(ostream& output, const Circulo& c){
-	output << "Circulo: c=(" << c.center.x << "," << c.center.y << ") r=" << c.radius << endl;
-	return output;
+void Circulo::set_color(Cor c){
+	this->cor = c;
 }
 
 //Draws a circle centered in the origin
-void desenhaCircle (float radius, Color color){
+void desenhaCircle (float radius, Cor cor){
 
-	glColor3f(color.r,color.g,color.b);
-
-	// Needed to invert y axis because of SVG and OpenGL's different y-axis
-	// orientation
+	glColor3f(cor.r,cor.g,cor.b);
 
 	int i;
 	float x,y;
@@ -126,11 +106,11 @@ void desenhaCircle (float radius, Color color){
 }
 
 //Draws a circle centered at center
-void desenhaCircle (float radius, Point center, Color color){
+void desenhaCircle (float radius, Point center, Cor cor){
 
 	glPushMatrix();
 
-	glColor3f(color.r,color.g,color.b);
+	glColor3f(cor.r,cor.g,cor.b);
 	glTranslatef(center.x,center.y,0);
 
 	// Needed to invert y axis because of SVG and OpenGL's different y-axis

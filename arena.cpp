@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Arena::Arena(float x, float y, float width, float height, Color c){
+Arena::Arena(float x, float y, float width, float height, Cor c){
 	// Assuming x and y correspond to the lower-left vertex of the rectangle
 
 	Point v = {x,y};
@@ -14,11 +14,11 @@ Arena::Arena(float x, float y, float width, float height, Color c){
 	this->vertex = v;
 	this->width = width;
 	this->height = height;
-	this->color = c;
+	this->cor = c;
 }
 
 
-void desenhaArena (float width, float height, Color c){
+void desenhaArena (float width, float height, Cor c){
 
 	glColor3f(c.r,c.g,c.b);
 
@@ -48,8 +48,8 @@ float Arena::get_height() const{
 	return this->height;
 }
 
-Color Arena::get_color() const{
-	return this->color;
+Cor Arena::get_color() const{
+	return this->cor;
 }
 
 

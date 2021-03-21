@@ -3,7 +3,7 @@
 #include "oponente.h"
 #include "input.h"
 
-Oponente::Oponente(Point pos, float raio, Color cor, GLfloat thetaOponente)
+Oponente::Oponente(Point pos, float raio, Cor cor, GLfloat thetaOponente)
 {
 
     this->centro = pos;
@@ -32,7 +32,7 @@ void Oponente::MudaPosicao(Point pos)
 }
 
 
-void Oponente::DesenhaRect(GLint height, GLint width, Color corBraco)
+void Oponente::DesenhaRect(GLint height, GLint width, Cor corBraco)
 {
     glColor3f(corBraco.r, corBraco.g, corBraco.b);
 
@@ -50,7 +50,7 @@ void Oponente::DesenhaRect(GLint height, GLint width, Color corBraco)
     glEnd();
 }
 
-void Oponente::DesenhaCirc(GLint radius, Color corOponente)
+void Oponente::DesenhaCirc(GLint radius, Cor corOponente)
 {
 
     GLfloat circle_points = 50;
@@ -64,7 +64,7 @@ void Oponente::DesenhaCirc(GLint radius, Color corOponente)
     glEnd();
 }
 
-void Oponente::DesenhaNariz(GLint radius, Color corOponente)
+void Oponente::DesenhaNariz(GLint radius, Cor corOponente)
 {
     glPushMatrix();
     {
@@ -76,8 +76,8 @@ void Oponente::DesenhaNariz(GLint radius, Color corOponente)
 
 void Oponente::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2)
 {
-    Color GRAY = {0.5, 0.5, 0.5};
-    Color RED = {1, 0, 0};
+    Cor GRAY = {0.5, 0.5, 0.5};
+    Cor RED = {1, 0, 0};
     glPushMatrix();
     {
         glPushMatrix();
