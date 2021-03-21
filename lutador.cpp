@@ -246,31 +246,31 @@ Point Lutador::verificaSocoDir(float wid, float heig, float thetaBraco,float the
 
 Point Lutador::verificaSocoEsq(float wid, float heig, float thetaBraco,float thetaAntebraco)
 {
-    Point luvaDir = {0, 0};
+    Point luvaEsq = {0, 0};
 
     // antebraço + rotação
     Point a = {-(this->raio * (float)sqrt(2)), 0};
-    luvaDir = translateFrom(luvaDir, a);
-    luvaDir = rotateBy(luvaDir, thetaAntebraco);
+    luvaEsq = translateFrom(luvaEsq, a);
+    luvaEsq = rotateBy(luvaEsq, thetaAntebraco);
 
     // braco direito ate cotovelo + rotacao
     Point b = {-(float)sqrt(2.0) * this->raio, 0};
-    luvaDir = translateFrom(luvaDir, b);
-    luvaDir = rotateBy(luvaDir, thetaBraco);
+    luvaEsq = translateFrom(luvaEsq, b);
+    luvaEsq = rotateBy(luvaEsq, thetaBraco);
 
     //centro(rodado) +raio
     Point c = {-this->raio, 0};
-    luvaDir = translateFrom(luvaDir, c);
+    luvaEsq = translateFrom(luvaEsq, c);
 
     //angulo jogador central
-    luvaDir = rotateBy(luvaDir, this->lutadorAngulo);
+    luvaEsq = rotateBy(luvaEsq, this->lutadorAngulo);
 
     //centro
-    luvaDir = translateFrom(luvaDir, this->ObtemPosicao());
+    luvaEsq = translateFrom(luvaEsq, this->ObtemPosicao());
 
-    luvaDir = {luvaDir.x + wid, luvaDir.y + heig};
-    // printf("%f,%f\n", luvaDir.x, luvaDir.y);
-    return luvaDir;
+    luvaEsq = {luvaEsq.x + wid, luvaEsq.y + heig};
+    // printf("%f,%f\n", luvaEsq.x, luvaEsq.y);
+    return luvaEsq;
 }
 
 Point translateFrom(Point p, Point oldOrigin)

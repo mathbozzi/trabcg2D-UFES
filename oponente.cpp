@@ -9,10 +9,11 @@ Oponente::Oponente(Point pos, float raio, Cor cor, GLfloat thetaOponente)
     this->centro = pos;
     this->cor = cor;
     this->raio = raio;
-    this->thetaOponente = thetaOponente;
     this->theta1 = -45;
     this->theta2 = 135;
-    this->OponenteAngulo = 0;
+    this->theta3 = -45;
+    this->theta4 = 135;
+    this->OponenteAngulo = thetaOponente;
 }
 
 Point Oponente::ObtemPosicao()
@@ -20,10 +21,49 @@ Point Oponente::ObtemPosicao()
     return this->centro;
 }
 
-
 float Oponente::ObtemRaio()
 {
     return this->raio;
+}
+
+float Oponente::ObtemTheta1()
+{
+    return this->theta1;
+}
+
+float Oponente::ObtemTheta2()
+{
+    return this->theta2;
+}
+
+float Oponente::ObtemTheta3()
+{
+    return this->theta3;
+}
+
+float Oponente::ObtemTheta4()
+{
+    return this->theta4;
+}
+
+void Oponente::MudaTheta1(GLfloat theta1)
+{
+    this->theta1 = theta1;
+}
+
+void Oponente::MudaTheta2(GLfloat theta2)
+{
+    this->theta2 = theta2;
+}
+
+void Oponente::MudaTheta3(GLfloat theta3)
+{
+    this->theta3 = theta3;
+}
+
+void Oponente::MudaTheta4(GLfloat theta4)
+{
+    this->theta4 = theta4;
 }
 
 void Oponente::MudaPosicao(Point pos)
@@ -74,7 +114,7 @@ void Oponente::DesenhaNariz(GLint radius, Cor corOponente)
     glPopMatrix();
 }
 
-void Oponente::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2)
+void Oponente::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4)
 {
     Cor GRAY = {0.5, 0.5, 0.5};
     Cor RED = {1, 0, 0};
@@ -98,11 +138,11 @@ void Oponente::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2)
         glPushMatrix();
         {
             glTranslatef(-(this->raio), 0, 0);
-            glRotatef(-theta1, 0, 0, 1);
+            glRotatef(-theta3, 0, 0, 1);
             DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
 
             glTranslatef(-(this->raio * sqrt(2)), 0, 0);
-            glRotatef(-theta2, 0, 0, 1);
+            glRotatef(-theta4, 0, 0, 1);
             DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
 
             glTranslatef(-(this->raio * sqrt(2)), 0, 0);
@@ -119,7 +159,7 @@ void Oponente::DesenhaOponente()
     {
         glTranslatef(this->centro.x, this->centro.y, 0);
         glRotatef(this->OponenteAngulo, 0, 0, 1);
-        DesenhaBraco(this->centro, theta1, theta2);
+        DesenhaBraco(this->centro, theta1, theta2,theta3,theta4);
         DesenhaNariz(this->raio, this->cor);
         DesenhaCirc(this->raio, this->cor);
     }
@@ -141,7 +181,7 @@ void Oponente::MoveOponente(float dx, float dy)
     this->centro.y += dy;
 }
 
-Point Oponente::update(bool w, bool s, bool a, bool d, GLdouble timeDiff)
+Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDiff)
 {
 
     float playerSpeed = 0.1*timeDiff;

@@ -7,7 +7,7 @@
 #include <list>
 #include <iterator>
 #include <cmath>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -22,21 +22,22 @@ using namespace std;
 int keyStatus[256];
 static char pontos[32];
 void *font = GLUT_BITMAP_9_BY_15;
-
 int animate = 0;
+long int inicial = time(NULL);
+long int final, quadros = 0;
 
 Lutador *lutadorPrincipal = NULL;
 Oponente *lutadorOponente = NULL;
 Arena *arenaSVG = NULL;
 
+float facil = 0.5;
+float medio = 0.9;
+float dificil = 1.5;
+
 int xAntigo;
 int yAntigo;
-
-GLdouble timeGameStarted;
-
 bool lutadorGanhou = false;
 bool oponenteGanhou = false;
-
 bool flagSocoDir = false;
 bool flagSocoEsq = false;
 int contaSocoDirLutador = 0;
@@ -145,7 +146,7 @@ void movimentoBraco(int x, int y)
 		{
 			lutadorPrincipal->MudaTheta1(-45 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
 			lutadorPrincipal->MudaTheta2(135 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoDir = lutadorPrincipal->verificaSocoDir(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(), lutadorPrincipal->ObtemTheta2());
+			Point pSocoDir = lutadorPrincipal->verificaSocoDir(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, lutadorPrincipal->ObtemTheta1(), lutadorPrincipal->ObtemTheta2());
 			verificaSeAcertouSocoDireito(pSocoDir, lutadorOponente);
 		}
 	}
@@ -153,9 +154,9 @@ void movimentoBraco(int x, int y)
 	{
 		if ((x - xAntigo >= (-arenaSVG->get_height() / 2)))
 		{
-			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_width() / 2)));
-			Point pSocoEsq = lutadorPrincipal->verificaSocoEsq(arenaSVG->get_height() / 2, arenaSVG->get_height() / 2, -lutadorPrincipal->ObtemTheta3(), -lutadorPrincipal->ObtemTheta4());
+			lutadorPrincipal->MudaTheta3(-45 - (x - xAntigo) * (135 / (arenaSVG->get_height() / 2)));
+			lutadorPrincipal->MudaTheta4(135 + (x - xAntigo) * (135 / (arenaSVG->get_height() / 2)));
+			Point pSocoEsq = lutadorPrincipal->verificaSocoEsq(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, -lutadorPrincipal->ObtemTheta3(), -lutadorPrincipal->ObtemTheta4());
 			verificaSeAcertouSocoEsquerdo(pSocoEsq, lutadorOponente);
 		}
 	}
@@ -196,20 +197,29 @@ void keyPress(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-void ResetKeyStatus()
-{
-	int i;
-	//Initialize keyStatus
-	for (i = 0; i < 256; i++)
-		keyStatus[i] = 0;
-}
-
-bool dentroArena(Lutador *l, Arena *a)
+bool dentroArenaLutador(Lutador *l, Arena *a)
 {
 	float x1, y1, r;
 	x1 = l->ObtemPosicao().x;
 	y1 = l->ObtemPosicao().y;
 	r = l->ObtemRaio();
+
+	Point p = a->get_vertex();
+	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
+	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
+
+	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
+		return true;
+	else
+		return false;
+}
+
+bool dentroArenaOponente(Oponente *o, Arena *a)
+{
+	float x1, y1, r;
+	x1 = o->ObtemPosicao().x;
+	y1 = o->ObtemPosicao().y;
+	r = o->ObtemRaio();
 
 	Point p = a->get_vertex();
 	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
@@ -238,7 +248,24 @@ bool dentroOponente(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
 		return false;
 }
 
-void idle(void)
+bool dentroLutador(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
+{
+	float rlp, rlo, dx;
+
+	Point p = lutadorPrincipal->ObtemPosicao();
+	rlp = lutadorPrincipal->ObtemRaio();
+	Point o = lutadorOponente->ObtemPosicao();
+	rlo = lutadorOponente->ObtemRaio();
+
+	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
+
+	if (dx >= rlp * 2 + rlo * 2)
+		return true;
+	else
+		return false;
+}
+
+void idle(int)
 {
 
 	static GLdouble previousTime = 0;
@@ -261,11 +288,10 @@ void idle(void)
 	sCheck = keyStatus['S'] == 1 || keyStatus['s'] == 1;
 
 	Point dx = lutadorPrincipal->atualizaLutador(wCheck, sCheck, aCheck, dCheck, timeDifference);
-
 	Arena *a = arenaSVG;
-	lutadorPrincipal->MoveLutador(dx.x, 0);
 
-	bool estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
+	lutadorPrincipal->MoveLutador(dx.x, 0);
+	bool estaDentro = dentroArenaLutador(lutadorPrincipal, a); //trata colisao com a arena
 	bool estaDentro2 = dentroOponente(lutadorPrincipal, lutadorOponente);
 	if (!estaDentro || !estaDentro2)
 	{
@@ -273,14 +299,15 @@ void idle(void)
 	}
 
 	lutadorPrincipal->MoveLutador(0, dx.y);
-
-	estaDentro = dentroArena(lutadorPrincipal, a); //trata colisao com a arena
+	estaDentro = dentroArenaLutador(lutadorPrincipal, a); //trata colisao com a arena
 	estaDentro2 = dentroOponente(lutadorPrincipal, lutadorOponente);
 	if (!estaDentro || !estaDentro2)
 	{
 		lutadorPrincipal->MoveLutador(0, -dx.y);
 	}
 
+
+	//MOVIMENTO DO OPONENTE
 	if (animate && !lutadorGanhou)
 	{
 		Point result = {lutadorOponente->ObtemPosicao().x - lutadorPrincipal->ObtemPosicao().x,
@@ -288,12 +315,70 @@ void idle(void)
 		double angle = atan2(result.y, result.x);
 		lutadorOponente->MudaAnguloJogador(-((180 - (angle * 180 / M_PI)) * 2) - (((angle * 180) / M_PI) - 90));
 
-		lutadorOponente->MoveOponente(0.1,0);
-		lutadorOponente->MoveOponente(0,0.1);
+		Point dy;
+		if (result.x > 0)
+		{
+			dy = lutadorOponente->atualizaOponente(true, false, false, true, facil * timeDifference);
+		}
+		else if (result.x < 0)
+		{
+			dy = lutadorOponente->atualizaOponente(true, false, true, false, facil * timeDifference);
+		}
 
+		lutadorOponente->MoveOponente(dy.x, 0);
+		bool estaDentroOp = dentroArenaOponente(lutadorOponente, a);
+		bool estaDentro2Op = dentroLutador(lutadorPrincipal, lutadorOponente);
+		if (!estaDentroOp || !estaDentro2Op)
+		{
+			lutadorOponente->MoveOponente(-dy.x, 0);
+			unsigned seed = time(0);
+			srand(seed);
+			int i = ((int)arenaSVG->get_width() / 2 * facil * 0.7) + rand() % ((int)arenaSVG->get_width() / 2);
+			if (i > ((int)arenaSVG->get_width() / 2))
+			{
+				i = ((int)arenaSVG->get_width() / 2);
+			}
+			unsigned seed2 = time(0);
+			srand(seed);
+			int x = rand() % 2;
+			if (x % 2 == 0)
+			{
+				for (int a = 0; a < i; a++)
+				{
+					lutadorOponente->MudaTheta1(-45 + i * (135 / (arenaSVG->get_width() / 2)));
+					lutadorOponente->MudaTheta2(135 - i * (135 / (arenaSVG->get_width() / 2)));
+					//tentar fazer um loop devagar
 
+				}
+				lutadorOponente->MudaTheta3(-45);
+				lutadorOponente->MudaTheta4(135);
+			}
+			else
+			{
+				lutadorOponente->MudaTheta1(-45);
+				lutadorOponente->MudaTheta2(135);
+				lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_height() / 2)));
+				lutadorOponente->MudaTheta4(135 - i * (135 / (arenaSVG->get_height() / 2)));
+			}
+		}
+		else
+		{
+			lutadorOponente->MudaTheta1(-45);
+			lutadorOponente->MudaTheta2(135);
+			lutadorOponente->MudaTheta3(-45);
+			lutadorOponente->MudaTheta4(135);
+		}
+
+		lutadorOponente->MoveOponente(0, dy.y);
+		estaDentro = dentroArenaOponente(lutadorOponente, a);
+		estaDentro2 = dentroOponente(lutadorPrincipal, lutadorOponente);
+		if (!estaDentro || !estaDentro2)
+		{
+			lutadorOponente->MoveOponente(0, -dy.y);
+		}
 	}
 
+	glutTimerFunc(1000 / 60, idle, 0);
 	glutPostRedisplay();
 }
 
@@ -338,6 +423,14 @@ void display(void)
 	lutadorOponente->DesenhaOponente();
 	printPontuacao();
 
+	quadros++;
+	final = time(NULL);
+	if (final - inicial > 0)
+	{
+		// cout << "fps " << quadros / (final - inicial) << endl;
+		quadros = 0;
+		inicial = final;
+	}
 	glFlush();
 	glutSwapBuffers();
 }
@@ -381,7 +474,7 @@ int main(int argc, char **argv)
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 		glutInitWindowSize(arenaSVG->get_width(), arenaSVG->get_height());
-		glutInitWindowPosition(100, 50);
+		glutInitWindowPosition(100, 0);
 		glutCreateWindow("Ring");
 		Cor bgCor = {arenaSVG->get_color().r, arenaSVG->get_color().g, arenaSVG->get_color().b};
 		init(bgCor, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
@@ -391,7 +484,8 @@ int main(int argc, char **argv)
 		glutMouseFunc(mouse);
 		glutMotionFunc(movimentoBraco);
 		glutKeyboardUpFunc(keyUp);
-		glutIdleFunc(idle);
+		glutTimerFunc(1000 / 60, idle, 0);
+		// glutIdleFunc(idle);
 		glutMainLoop();
 	}
 	else
