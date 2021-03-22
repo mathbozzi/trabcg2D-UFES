@@ -455,8 +455,8 @@ void idle(void)
 					lutadorOponente->MudaTheta1(-45);
 					lutadorOponente->MudaTheta2(135);
 					{
-						lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_height() / 2)));
-						lutadorOponente->MudaTheta4(135 - i * (angulo * 135 / (arenaSVG->get_height() / 2)));
+						lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_width() / 2)));
+						lutadorOponente->MudaTheta4(135 - i * (angulo * 135 / (arenaSVG->get_width() / 2)));
 						Point pSocoEsqOp = lutadorOponente->verificaSocoEsqOponente(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, -lutadorOponente->ObtemTheta3(), -lutadorOponente->ObtemTheta4());
 						if(!flag1SocoEsqOp){
 							pSocoEsqOp = {0,0};
