@@ -211,4 +211,64 @@ Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDi
     return p;
 }
 
+
+Point Oponente::verificaSocoEsqOponente(float wid, float heig, float thetaBraco,float thetaAntebraco)
+{
+    Point luvaEsq = {0, 0};
+
+    // antebraço + rotação
+    Point a = {-(this->raio * (float)sqrt(2)), 0};
+    luvaEsq = translateFrom(luvaEsq, a);
+    luvaEsq = rotateBy(luvaEsq, thetaAntebraco);
+
+    // braco direito ate cotovelo + rotacao
+    Point b = {-(float)sqrt(2.0) * this->raio, 0};
+    luvaEsq = translateFrom(luvaEsq, b);
+    luvaEsq = rotateBy(luvaEsq, thetaBraco);
+
+    //centro(rodado) +raio
+    Point c = {-this->raio, 0};
+    luvaEsq = translateFrom(luvaEsq, c);
+
+    //angulo jogador central
+    luvaEsq = rotateBy(luvaEsq, this->OponenteAngulo);
+
+    //centro
+    luvaEsq = translateFrom(luvaEsq, this->ObtemPosicao());
+
+    luvaEsq = {luvaEsq.x + wid, luvaEsq.y + heig};
+    // printf("%f,%f\n", luvaEsq.x, luvaEsq.y);
+    return luvaEsq;
+}
+
+Point Oponente::verificaSocoDirOponente(float wid, float heig, float thetaBraco,float thetaAntebraco)
+{
+    Point luvaDir = {0, 0};
+
+    // antebraço + rotação
+    Point a = {(this->raio * (float)sqrt(2)), 0};
+    luvaDir = translateFrom(luvaDir, a);
+    luvaDir = rotateBy(luvaDir, thetaAntebraco);
+
+    // braco direito ate cotovelo + rotacao
+    Point b = {(float)sqrt(2.0) * this->raio, 0};
+    luvaDir = translateFrom(luvaDir, b);
+    luvaDir = rotateBy(luvaDir, thetaBraco);
+
+    //centro(rodado) +raio
+    Point c = {this->raio, 0};
+    luvaDir = translateFrom(luvaDir, c);
+
+    //angulo jogador central
+    luvaDir = rotateBy(luvaDir, this->OponenteAngulo);
+
+    //centro
+    luvaDir = translateFrom(luvaDir, this->ObtemPosicao());
+
+    luvaDir = {luvaDir.x + wid, luvaDir.y + heig};
+    // printf("%f,%f\n", luvaDir.x, luvaDir.y);
+    return luvaDir;
+}
+
+
 // glutIgnoreKeyRepeat(true)

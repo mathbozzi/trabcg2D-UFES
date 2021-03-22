@@ -77,8 +77,6 @@ void parseRect(XMLElement *ret)
 
   float x, y, width, height;
   Cor cor;
-  ret->QueryFloatAttribute("x", &x);
-  ret->QueryFloatAttribute("y", &y);
   ret->QueryFloatAttribute("width", &width);
   ret->QueryFloatAttribute("height", &height);
   string fill = ret->Attribute("fill");
@@ -96,7 +94,7 @@ void parseRect(XMLElement *ret)
     cor = {0.0, 1.0, 0.0};
   }
 
-  Arena *arena = new Arena(x, y, width, height, cor);
+  Arena *arena = new Arena(0, 0, width, height, cor);
   arenaSVG = arena;
 }
 

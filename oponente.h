@@ -38,8 +38,8 @@ public:
     void GiraOponente(GLfloat dx);
     void CurvaOponente(GLfloat dr);
     void MoveOponente(float dx, float dy);
-    Point verificaSocoDir(float wid, float heig, float thetaBraco, float thetaAntebraco);
-    Point verificaSocoEsq(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point verificaSocoEsqOponente(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point verificaSocoDirOponente(float wid, float heig, float thetaBraco, float thetaAntebraco);
     Point atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDiff);
 };
 

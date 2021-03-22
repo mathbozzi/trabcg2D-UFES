@@ -43,6 +43,11 @@ bool flagSocoEsq = false;
 int contaSocoDirLutador = 0;
 int contaSocoEsqLutador = 0;
 
+bool flagSocoDirOp = false;
+bool flagSocoEsqOp = false;
+int contaSocoDirOponente = 0;
+int contaSocoEsqOponente = 0;
+
 void posInicialLutadores()
 {
 	//inicia ponto do lutador
@@ -71,8 +76,8 @@ void mouse(int botao, int estado, int x, int y)
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
-		// cout << x << endl;
-		// cout << y << endl;
+		cout << x << endl;
+		cout << y << endl;
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
@@ -112,6 +117,32 @@ void verificaSeAcertouSocoDireito(Point p, Oponente *o)
 	}
 }
 
+void verificaSeAcertouSocoDireitoOponente(Point p, Lutador *l)
+{
+
+	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
+	{
+		// cout << "errou" << endl;
+		flagSocoDirOp = true;
+		flagSocoEsqOp = true;
+	}
+	else
+	{
+		if (flagSocoDirOp)
+		{
+			// cout << "ACERTOU" << endl;
+			contaSocoDirOponente += 1;
+			flagSocoDirOp = false;
+			flagSocoEsqOp = false;
+		}
+	}
+}
+
 void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
 {
 
@@ -130,6 +161,30 @@ void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
 		{
 			contaSocoEsqLutador += 1;
 			flagSocoEsq = false;
+		}
+	}
+}
+
+void verificaSeAcertouSocoEsquerdoOponente(Point p, Lutador *l)
+{
+
+	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
+	{
+		flagSocoEsqOp = true;
+		flagSocoDirOp = true;
+	}
+	else
+	{
+		if (flagSocoEsqOp)
+		{
+			contaSocoEsqOponente += 1;
+			flagSocoEsqOp = false;
+			flagSocoDirOp = false;
 		}
 	}
 }
@@ -271,8 +326,6 @@ void idle(void)
 	static GLdouble previousTime = 0;
 	GLdouble currentTime;
 	GLdouble timeDifference;
-
-	// Get time from the beginning of the game
 	currentTime = glutGet(GLUT_ELAPSED_TIME);
 	timeDifference = currentTime - previousTime;
 	previousTime = currentTime;
@@ -307,7 +360,7 @@ void idle(void)
 	}
 
 	//MOVIMENTO DO OPONENTE
-	if (animate && !lutadorGanhou)
+	if (animate && !lutadorGanhou && !oponenteGanhou)
 	{
 		Point result = {lutadorOponente->ObtemPosicao().x - lutadorPrincipal->ObtemPosicao().x,
 						lutadorOponente->ObtemPosicao().y - lutadorPrincipal->ObtemPosicao().y};
@@ -345,6 +398,8 @@ void idle(void)
 				{
 					lutadorOponente->MudaTheta1(-45 + i * (135 / (arenaSVG->get_width() / 2)));
 					lutadorOponente->MudaTheta2(135 - i * (135 / (arenaSVG->get_width() / 2)));
+					Point pSocoDirOp = lutadorOponente->verificaSocoDirOponente(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, lutadorOponente->ObtemTheta1(), lutadorOponente->ObtemTheta2());
+					verificaSeAcertouSocoDireitoOponente(pSocoDirOp, lutadorPrincipal);
 					//tentar fazer um loop devagar
 				}
 
@@ -358,6 +413,8 @@ void idle(void)
 				{
 					lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_height() / 2)));
 					lutadorOponente->MudaTheta4(135 - i * (135 / (arenaSVG->get_height() / 2)));
+					Point pSocoEsqOp = lutadorOponente->verificaSocoEsqOponente(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, -lutadorOponente->ObtemTheta3(), -lutadorOponente->ObtemTheta4());
+					verificaSeAcertouSocoEsquerdoOponente(pSocoEsqOp, lutadorPrincipal);
 					//voltar devagar
 				}
 			}
@@ -400,10 +457,25 @@ void printPontuacao()
 			pontuacao++;
 		}
 	}
+	else if (contaSocoDirOponente + contaSocoEsqOponente >= 10)
+	{
+		oponenteGanhou = true;
+		char *pontuacao;
+		sprintf(pontos, "VOCE PERDEU, TENTE NOVAMENTE!");
+		glColor3f(0.0, 0.0, 0.0);
+		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+		pontuacao = pontos;
+		while (*pontuacao)
+		{
+			glutBitmapCharacter(font, *pontuacao);
+			pontuacao++;
+		}
+	}
 	else
 	{
 		char *pontuacao;
-		sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador + contaSocoEsqLutador, 0);
+		sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador + contaSocoEsqLutador, contaSocoDirOponente + contaSocoEsqOponente);
 		glColor3f(0.0, 0.0, 0.0);
 		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
 
