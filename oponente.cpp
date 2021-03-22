@@ -184,9 +184,8 @@ void Oponente::MoveOponente(float dx, float dy)
 Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDiff)
 {
 
-    float playerSpeed = 0.1*timeDiff;
     float dx = 0, dy = 0;
-    float playerAngle = this->OponenteAngulo;
+    float velocidadeOponente = 0.1*timeDiff;
 
     if (d){
         this->OponenteAngulo -= 1;
@@ -197,16 +196,15 @@ Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDi
 
     if (w)
     {
-        dy = playerSpeed * cos(M_PI * playerAngle / 180.0);
-        dx = -playerSpeed * sin(M_PI * playerAngle / 180.0);
+        dy = velocidadeOponente * cos(M_PI * this->OponenteAngulo / 180.0);
+        dx = -velocidadeOponente * sin(M_PI * this->OponenteAngulo / 180.0);
     }
 
     if (s)
     {
-        dy = -playerSpeed * cos(M_PI * playerAngle / 180.0);
-        dx = +playerSpeed * sin(M_PI * playerAngle / 180.0);
+        dy = -velocidadeOponente * cos(M_PI * this->OponenteAngulo / 180.0);
+        dx = +velocidadeOponente * sin(M_PI * this->OponenteAngulo / 180.0);
     }
-
 
     Point p = {dx, dy};
 

@@ -48,13 +48,13 @@ void posInicialLutadores()
 	//inicia ponto do lutador
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
 	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_width() / 2));
-	lutadorPoint.y = (-(arenaSVG->get_height() / 2) + lutadorPoint.y);
+	lutadorPoint.y = (+(arenaSVG->get_height() / 2) - lutadorPoint.y);
 	lutadorPrincipal->MudaPosicao(lutadorPoint);
 
 	//inicia ponto do oponente
 	Point oponentePoint = lutadorOponente->ObtemPosicao();
 	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_width() / 2));
-	oponentePoint.y = (-(arenaSVG->get_height() / 2) + oponentePoint.y);
+	oponentePoint.y = ((arenaSVG->get_height() / 2) - oponentePoint.y);
 	lutadorOponente->MudaPosicao(oponentePoint);
 
 	//coloca os dois de frente
@@ -265,7 +265,7 @@ bool dentroLutador(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
 		return false;
 }
 
-void idle(int)
+void idle(void)
 {
 
 	static GLdouble previousTime = 0;
@@ -306,7 +306,6 @@ void idle(int)
 		lutadorPrincipal->MoveLutador(0, -dx.y);
 	}
 
-
 	//MOVIMENTO DO OPONENTE
 	if (animate && !lutadorGanhou)
 	{
@@ -343,13 +342,12 @@ void idle(int)
 			int x = rand() % 2;
 			if (x % 2 == 0)
 			{
-				for (int a = 0; a < i; a++)
 				{
 					lutadorOponente->MudaTheta1(-45 + i * (135 / (arenaSVG->get_width() / 2)));
 					lutadorOponente->MudaTheta2(135 - i * (135 / (arenaSVG->get_width() / 2)));
 					//tentar fazer um loop devagar
-
 				}
+
 				lutadorOponente->MudaTheta3(-45);
 				lutadorOponente->MudaTheta4(135);
 			}
@@ -357,8 +355,11 @@ void idle(int)
 			{
 				lutadorOponente->MudaTheta1(-45);
 				lutadorOponente->MudaTheta2(135);
-				lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_height() / 2)));
-				lutadorOponente->MudaTheta4(135 - i * (135 / (arenaSVG->get_height() / 2)));
+				{
+					lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_height() / 2)));
+					lutadorOponente->MudaTheta4(135 - i * (135 / (arenaSVG->get_height() / 2)));
+					//voltar devagar
+				}
 			}
 		}
 		else
@@ -378,7 +379,7 @@ void idle(int)
 		}
 	}
 
-	glutTimerFunc(1000 / 60, idle, 0);
+	// glutTimerFunc(1000 / 60, idle, 0);
 	glutPostRedisplay();
 }
 
@@ -484,8 +485,8 @@ int main(int argc, char **argv)
 		glutMouseFunc(mouse);
 		glutMotionFunc(movimentoBraco);
 		glutKeyboardUpFunc(keyUp);
-		glutTimerFunc(1000 / 60, idle, 0);
-		// glutIdleFunc(idle);
+		// glutTimerFunc(1000 / 60, idle, 0);
+		glutIdleFunc(idle);
 		glutMainLoop();
 	}
 	else
