@@ -5,7 +5,6 @@
 
 Oponente::Oponente(Point pos, float raio, Cor cor, GLfloat thetaOponente)
 {
-
     this->centro = pos;
     this->cor = cor;
     this->raio = raio;
@@ -71,28 +70,36 @@ void Oponente::MudaPosicao(Point pos)
     this->centro = pos;
 }
 
+GLfloat Oponente::ObtemAnguloJogador()
+{
+    return this->OponenteAngulo;
+}
+
+void Oponente::MudaAnguloJogador(float newangle)
+{
+    this->OponenteAngulo = newangle;
+}
+
+void Oponente::MoveOponente(float dx, float dy)
+{
+    this->centro.x += dx;
+    this->centro.y += dy;
+}
 
 void Oponente::DesenhaRect(GLint height, GLint width, Cor corBraco)
 {
     glColor3f(corBraco.r, corBraco.g, corBraco.b);
 
     glBegin(GL_QUADS);
-    {
-        glVertex2f(-height + height, width);
-        // printf("(%f,%f)\n",(float)-height,(float) width+width);
-        glVertex2f(-height + height, -width);
-        // printf("(%f,%f)\n",(float)-height,(float) -width+width);
-        glVertex2f(height + height, -width);
-        // printf("(%f,%f)\n",(float)height,(float) -width+width);
-        glVertex2f(height + height, width);
-        // printf("(%f,%f)\n",(float)height,(float) width+width);
-    }
+    glVertex2f(-height + height, width);
+    glVertex2f(-height + height, -width);
+    glVertex2f(height + height, -width);
+    glVertex2f(height + height, width);
     glEnd();
 }
 
 void Oponente::DesenhaCirc(GLint radius, Cor corOponente)
 {
-
     GLfloat circle_points = 50;
     glBegin(GL_POLYGON);
     for (int i = 0; i < circle_points; i++)
@@ -107,10 +114,8 @@ void Oponente::DesenhaCirc(GLint radius, Cor corOponente)
 void Oponente::DesenhaNariz(GLint radius, Cor corOponente)
 {
     glPushMatrix();
-    {
-        glTranslatef(0, (radius) + (0.1 * radius), 0);
-        DesenhaCirc((radius * 0.2), corOponente);
-    }
+    glTranslatef(0, (radius) + (0.1 * radius), 0);
+    DesenhaCirc((radius * 0.2), corOponente);
     glPopMatrix();
 }
 
@@ -119,75 +124,57 @@ void Oponente::DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat t
     Cor GRAY = {0.5, 0.5, 0.5};
     Cor RED = {1, 0, 0};
     glPushMatrix();
-    {
-        glPushMatrix();
-        {
-            glTranslatef(this->raio, 0, 0);
-            glRotatef(theta1, 0, 0, 1);
-            DesenhaRect(this->raio * sqrt(2) / 2, this->raio * 0.1, GRAY);
 
-            glTranslatef(this->raio * sqrt(2), 0, 0);
-            glRotatef(theta2, 0, 0, 1);
-            DesenhaRect(this->raio * sqrt(2) / 2, this->raio * 0.1, GRAY);
+    glPushMatrix();
+    glTranslatef(this->raio, 0, 0);
+    glRotatef(theta1, 0, 0, 1);
+    DesenhaRect(this->raio * sqrt(2) / 2, this->raio * 0.1, GRAY);
 
-            glTranslatef(this->raio * sqrt(2), 0, 0);
-            DesenhaCirc((this->raio / 2), RED);
-        }
-        glPopMatrix();
+    glTranslatef(this->raio * sqrt(2), 0, 0);
+    glRotatef(theta2, 0, 0, 1);
+    DesenhaRect(this->raio * sqrt(2) / 2, this->raio * 0.1, GRAY);
 
-        glPushMatrix();
-        {
-            glTranslatef(-(this->raio), 0, 0);
-            glRotatef(-theta3, 0, 0, 1);
-            DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
+    glTranslatef(this->raio * sqrt(2), 0, 0);
+    DesenhaCirc((this->raio / 2), RED);
+    glPopMatrix();
 
-            glTranslatef(-(this->raio * sqrt(2)), 0, 0);
-            glRotatef(-theta4, 0, 0, 1);
-            DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
+    glPushMatrix();
+    glTranslatef(-(this->raio), 0, 0);
+    glRotatef(-theta3, 0, 0, 1);
+    DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
 
-            glTranslatef(-(this->raio * sqrt(2)), 0, 0);
-            DesenhaCirc((this->raio / 2), RED);
-        }
-        glPopMatrix();
-    }
+    glTranslatef(-(this->raio * sqrt(2)), 0, 0);
+    glRotatef(-theta4, 0, 0, 1);
+    DesenhaRect(-(this->raio * sqrt(2) / 2), this->raio * 0.1, GRAY);
+
+    glTranslatef(-(this->raio * sqrt(2)), 0, 0);
+    DesenhaCirc((this->raio / 2), RED);
+    glPopMatrix();
+
     glPopMatrix();
 }
 
 void Oponente::DesenhaOponente()
 {
     glPushMatrix();
-    {
-        glTranslatef(this->centro.x, this->centro.y, 0);
-        glRotatef(this->OponenteAngulo, 0, 0, 1);
-        DesenhaBraco(this->centro, theta1, theta2,theta3,theta4);
-        DesenhaNariz(this->raio, this->cor);
-        DesenhaCirc(this->raio, this->cor);
-    }
+
+    glTranslatef(this->centro.x, this->centro.y, 0);
+    glRotatef(this->OponenteAngulo, 0, 0, 1);
+    DesenhaBraco(this->centro, theta1, theta2, theta3, theta4);
+    DesenhaNariz(this->raio, this->cor);
+    DesenhaCirc(this->raio, this->cor);
+
     glPopMatrix();
 }
 
-
-GLfloat Oponente::ObtemAnguloJogador(){
-    return this->OponenteAngulo;
-}
-
-void Oponente::MudaAnguloJogador(float newangle){
-    this->OponenteAngulo = newangle;
-}
-
-void Oponente::MoveOponente(float dx, float dy)
-{
-    this->centro.x += dx;
-    this->centro.y += dy;
-}
-
-Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDiff)
+Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble time)
 {
 
     float dx = 0, dy = 0;
-    float velocidadeOponente = 0.1*timeDiff;
+    float velocidadeOponente = 0.1 * time;
 
-    if (d){
+    if (d)
+    {
         this->OponenteAngulo -= 1;
     }
 
@@ -207,68 +194,78 @@ Point Oponente::atualizaOponente(bool w, bool s, bool a, bool d, GLdouble timeDi
     }
 
     Point p = {dx, dy};
-
     return p;
 }
 
-
-Point Oponente::verificaSocoEsqOponente(float wid, float heig, float thetaBraco,float thetaAntebraco)
+Point Oponente::verificaSocoEsqOponente(float wid, float heig, float thetaBraco, float thetaAntebraco)
 {
     Point luvaEsq = {0, 0};
 
     // antebraço + rotação
     Point a = {-(this->raio * (float)sqrt(2)), 0};
-    luvaEsq = translateFrom(luvaEsq, a);
-    luvaEsq = rotateBy(luvaEsq, thetaAntebraco);
+    luvaEsq = translated(luvaEsq, a);
+    luvaEsq = rotated(luvaEsq, thetaAntebraco);
 
     // braco direito ate cotovelo + rotacao
     Point b = {-(float)sqrt(2.0) * this->raio, 0};
-    luvaEsq = translateFrom(luvaEsq, b);
-    luvaEsq = rotateBy(luvaEsq, thetaBraco);
+    luvaEsq = translated(luvaEsq, b);
+    luvaEsq = rotated(luvaEsq, thetaBraco);
 
     //centro(rodado) +raio
     Point c = {-this->raio, 0};
-    luvaEsq = translateFrom(luvaEsq, c);
+    luvaEsq = translated(luvaEsq, c);
 
     //angulo jogador central
-    luvaEsq = rotateBy(luvaEsq, this->OponenteAngulo);
+    luvaEsq = rotated(luvaEsq, this->OponenteAngulo);
 
     //centro
-    luvaEsq = translateFrom(luvaEsq, this->ObtemPosicao());
+    luvaEsq = translated(luvaEsq, this->ObtemPosicao());
 
     luvaEsq = {luvaEsq.x + wid, luvaEsq.y + heig};
     // printf("%f,%f\n", luvaEsq.x, luvaEsq.y);
     return luvaEsq;
 }
 
-Point Oponente::verificaSocoDirOponente(float wid, float heig, float thetaBraco,float thetaAntebraco)
+Point Oponente::verificaSocoDirOponente(float wid, float heig, float thetaBraco, float thetaAntebraco)
 {
     Point luvaDir = {0, 0};
 
     // antebraço + rotação
     Point a = {(this->raio * (float)sqrt(2)), 0};
-    luvaDir = translateFrom(luvaDir, a);
-    luvaDir = rotateBy(luvaDir, thetaAntebraco);
+    luvaDir = translated(luvaDir, a);
+    luvaDir = rotated(luvaDir, thetaAntebraco);
 
     // braco direito ate cotovelo + rotacao
     Point b = {(float)sqrt(2.0) * this->raio, 0};
-    luvaDir = translateFrom(luvaDir, b);
-    luvaDir = rotateBy(luvaDir, thetaBraco);
+    luvaDir = translated(luvaDir, b);
+    luvaDir = rotated(luvaDir, thetaBraco);
 
     //centro(rodado) +raio
     Point c = {this->raio, 0};
-    luvaDir = translateFrom(luvaDir, c);
+    luvaDir = translated(luvaDir, c);
 
     //angulo jogador central
-    luvaDir = rotateBy(luvaDir, this->OponenteAngulo);
+    luvaDir = rotated(luvaDir, this->OponenteAngulo);
 
     //centro
-    luvaDir = translateFrom(luvaDir, this->ObtemPosicao());
+    luvaDir = translated(luvaDir, this->ObtemPosicao());
 
     luvaDir = {luvaDir.x + wid, luvaDir.y + heig};
     // printf("%f,%f\n", luvaDir.x, luvaDir.y);
     return luvaDir;
 }
 
+Point Oponente::translated(Point p, Point pAntigo)
+{
+    p.x += pAntigo.x;
+    p.y += pAntigo.y;
+    return p;
+}
 
-// glutIgnoreKeyRepeat(true)
+Point Oponente::rotated(Point p, float angle)
+{
+    Point rotated;
+    rotated.x = p.x * cos(M_PI * angle / 180.0) - p.y * sin(M_PI * angle / 180.0);
+    rotated.y = p.x * sin(M_PI * angle / 180.0) + p.y * cos(M_PI * angle / 180.0);
+    return rotated;
+}

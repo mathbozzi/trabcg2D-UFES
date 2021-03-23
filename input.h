@@ -3,11 +3,9 @@
 
 #include <iostream>
 #include <stdio.h>
-
 using namespace std;
 
-string parseXMLFile (string filePath);
-
-void parseSVGFile (string filePath);
+string parseXMLFile(string filePath);
+void parseSVGFile(string filePath);
 
 #endif /* INPUT_H_ */

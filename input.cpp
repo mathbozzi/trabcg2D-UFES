@@ -1,17 +1,9 @@
 #include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <vector>
-#include <time.h>
 #include "input.h"
 #include "oponente.h"
 #include "arena.h"
-#include "circulo.h"
 #include "lutador.h"
 #include "tinyxml2.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
 
 using namespace tinyxml2;
 using namespace std;
@@ -26,7 +18,7 @@ string parseXMLFile(string filePath)
   arquivoXML.LoadFile(filePath.c_str());
 
   if (arquivoXML.ErrorID() != 0)
-    cout << "Erro no arquivo de entrada config.xml" << endl;
+    cout << "Erro no XML" << endl;
   else
   {
     XMLElement *adaElement = arquivoXML.FirstChildElement("boxe")->FirstChildElement("arquivoDaArena");
@@ -40,7 +32,6 @@ string parseXMLFile(string filePath)
 
 void parseCircle(XMLElement *c, int i)
 {
-
   float cx, cy, r;
   Cor cor;
   c->QueryFloatAttribute("cx", &cx);
@@ -74,7 +65,6 @@ void parseCircle(XMLElement *c, int i)
 
 void parseRect(XMLElement *ret)
 {
-
   float x, y, width, height;
   Cor cor;
   ret->QueryFloatAttribute("width", &width);
@@ -109,7 +99,6 @@ void parseSVGFile(string filePath)
   else
   {
     XMLElement *svg = arquivoArena.FirstChildElement("svg");
-
     XMLElement *arqSVG = svg->FirstChildElement();
 
     int i = 0;

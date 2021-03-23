@@ -16,13 +16,6 @@ typedef struct tCor
     float b;
 } Cor;
 
-// Angle must be in degrees
-Point rotateBy(Point p, float angle);
-
-// This assumes that the coordinates of oldOrigin are expressed in terms
-// of the new coordinate system
-Point translateFrom(Point p, Point oldOrigin);
-
 class Lutador
 {
     Point centro;
@@ -36,30 +29,32 @@ class Lutador
 
 public:
     Lutador(Point pos, float raio, Cor cor, GLfloat thetaLutador);
-    Point ObtemPosicao();
-    float ObtemRaio();
     GLfloat ObtemAnguloJogador();
+    Point ObtemPosicao();
+    Point atualizaLutador(bool w, bool s, bool a, bool d, GLdouble time);
+    Point verificaSocoDir(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point verificaSocoEsq(float wid, float heig, float thetaBraco, float thetaAntebraco);
+    Point rotated(Point p, float angle);
+    Point translated(Point p, Point pAntigo);
     void MudaAnguloJogador(float newangle);
     void MudaPosicao(Point pos);
     void MudaTheta1(GLfloat theta1);
     void MudaTheta2(GLfloat theta2);
     void MudaTheta3(GLfloat theta3);
     void MudaTheta4(GLfloat theta4);
+    void DesenhaLutador();
+    void GiraLutador(GLfloat dx);
+    void CurvaLutador(GLfloat dr);
+    void MoveLutador(float dx, float dy);
+    void DesenhaCirc(GLint radius, Cor corlutador);
+    void DesenhaNariz(GLint radius, Cor corlutador);
+    void DesenhaRect(GLint height, GLint width, Cor corBraco);
+    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
+    float ObtemRaio();
     float ObtemTheta1();
     float ObtemTheta2();
     float ObtemTheta3();
     float ObtemTheta4();
-    void DesenhaLutador();
-    void DesenhaBraco(Point pos, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
-    void DesenhaCirc(GLint radius, Cor corlutador);
-    void DesenhaNariz(GLint radius, Cor corlutador);
-    void DesenhaRect(GLint height, GLint width, Cor corBraco);
-    void GiraLutador(GLfloat dx);
-    void CurvaLutador(GLfloat dr);
-    void MoveLutador(float dx, float dy);
-    Point verificaSocoDir(float wid, float heig, float thetaBraco, float thetaAntebraco);
-    Point verificaSocoEsq(float wid, float heig, float thetaBraco, float thetaAntebraco);
-    Point atualizaLutador(bool w, bool s, bool a, bool d, GLdouble timeDiff);
 };
 
 #endif /* LUTADOR_H */

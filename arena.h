@@ -7,25 +7,21 @@
 
 using namespace std;
 
-// This class represents a generic Rectrilateral
 class Arena
 {
-	// The vertex corresponds to the lower-left one
-	Point vertex;
+	Point pos;
+	Cor cor;
 	float width;
 	float height;
-	Cor cor;
 
 public:
 	Arena(float x, float y, float width, float height, Cor c);
-	Point get_vertex() const;
-	float get_width() const;
-	float get_height() const;
-	Cor get_color() const;
-	void set_vertex(Point v1);
-	void print() const;
-	friend ostream &operator<<(ostream &output, const Arena &c);
+	Point ObtemPos();
+	Cor ObtemCor();
 	void desenhaArena(float width, float height, Cor c);
+	void set_vertex(Point p);
+	float get_width();
+	float get_height();
 };
 
 #endif /* ARENA_H_ */

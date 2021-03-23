@@ -1,34 +1,22 @@
 #include <GL/glut.h>
-#include <cstdlib>
-#include <cstdio>
 #include <iostream>
-#include <map>
-#include <vector>
-#include <list>
-#include <iterator>
 #include <cmath>
 #include <ctime>
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
 #include "lutador.h"
 #include "oponente.h"
 #include "arena.h"
-#include "circulo.h"
 #include "input.h"
 
 using namespace std;
 
+int animate = 0;
 int keyStatus[256];
 static char pontos[100];
 void *font = GLUT_BITMAP_9_BY_15;
-int animate = 0;
-long int inicial = time(NULL);
-long int final, quadros = 0;
 
+Arena *arenaSVG = NULL;
 Lutador *lutadorPrincipal = NULL;
 Oponente *lutadorOponente = NULL;
-Arena *arenaSVG = NULL;
 
 float facil = 0.5;
 float medio = 0.9;
@@ -39,12 +27,12 @@ bool dificuldadeDificil = false;
 
 int xAntigo;
 int yAntigo;
+int contaSocoDirLutador = 0;
+int contaSocoEsqLutador = 0;
 bool lutadorGanhou = false;
 bool oponenteGanhou = false;
 bool flagSocoDir = false;
 bool flagSocoEsq = false;
-int contaSocoDirLutador = 0;
-int contaSocoEsqLutador = 0;
 
 int flag1SocoDirOp = 0;
 int flag1SocoEsqOp = 0;
@@ -74,16 +62,231 @@ void posInicialLutadores()
 	lutadorOponente->MudaAnguloJogador(-((180 - (angle * 180 / M_PI)) * 2) - (((angle * 180) / M_PI) - 90));
 }
 
+void verificaSeAcertouSocoDireito(Point p, Oponente *o)
+{
+	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
+	{
+		flagSocoDir = true;
+	}
+	else
+	{
+		if (flagSocoDir)
+		{
+			contaSocoDirLutador += 1;
+			flagSocoDir = false;
+		}
+	}
+}
+
+void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
+{
+	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
+	{
+		flagSocoEsq = true;
+	}
+	else
+	{
+		if (flagSocoEsq)
+		{
+			contaSocoEsqLutador += 1;
+			flagSocoEsq = false;
+		}
+	}
+}
+
+void verificaSeAcertouSocoDireitoOponente(Point p, Lutador *l)
+{
+	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
+	{
+		flagSocoDirOp = true;
+	}
+	else
+	{
+		if (flagSocoDirOp)
+		{
+			contaSocoDirOponente += 1;
+			flagSocoDirOp = false;
+			flagSocoEsqOp = true;
+		}
+	}
+}
+
+void verificaSeAcertouSocoEsquerdoOponente(Point p, Lutador *l)
+{
+	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
+	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
+
+	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
+
+	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
+	{
+		flagSocoEsqOp = true;
+	}
+	else
+	{
+		if (flagSocoEsqOp)
+		{
+			contaSocoEsqOponente += 1;
+			flagSocoEsqOp = false;
+			flagSocoDirOp = true;
+		}
+	}
+}
+
+bool dentroArenaLutador(Lutador *l, Arena *a)
+{
+	float x1, y1, r;
+	x1 = l->ObtemPosicao().x;
+	y1 = l->ObtemPosicao().y;
+	r = l->ObtemRaio();
+
+	Point p = a->ObtemPos();
+	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
+	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
+
+	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
+		return true;
+	else
+		return false;
+}
+
+bool dentroArenaOponente(Oponente *o, Arena *a)
+{
+	float x1, y1, r;
+	x1 = o->ObtemPosicao().x;
+	y1 = o->ObtemPosicao().y;
+	r = o->ObtemRaio();
+
+	Point p = a->ObtemPos();
+	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
+	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
+
+	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
+		return true;
+	else
+		return false;
+}
+
+bool dentroOponente(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
+{
+	float rlp, rlo, dx;
+
+	Point p = lutadorPrincipal->ObtemPosicao();
+	rlp = lutadorPrincipal->ObtemRaio();
+	Point o = lutadorOponente->ObtemPosicao();
+	rlo = lutadorOponente->ObtemRaio();
+
+	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
+
+	if (dx >= rlp * 2 + rlo * 2)
+		return true;
+	else
+		return false;
+}
+
+bool dentroLutador(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
+{
+	float rlp, rlo, dx;
+
+	Point p = lutadorPrincipal->ObtemPosicao();
+	rlp = lutadorPrincipal->ObtemRaio();
+	Point o = lutadorOponente->ObtemPosicao();
+	rlo = lutadorOponente->ObtemRaio();
+
+	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
+
+	if (dx >= rlp * 2 + rlo * 2)
+		return true;
+	else
+		return false;
+}
+
+void printPontuacao()
+{
+	if (dificuldadeFacil || dificuldadeMedio || dificuldadeDificil)
+	{
+		if (contaSocoDirLutador + contaSocoEsqLutador >= 10)
+		{
+			lutadorGanhou = true;
+			char *pontuacao;
+			sprintf(pontos, "PARABENS, VOCE GANHOU! :D");
+			glColor3f(0.0, 0.0, 0.0);
+			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+			pontuacao = pontos;
+			while (*pontuacao)
+			{
+				glutBitmapCharacter(font, *pontuacao);
+				pontuacao++;
+			}
+		}
+		else if (contaSocoDirOponente + contaSocoEsqOponente >= 10)
+		{
+			oponenteGanhou = true;
+			char *pontuacao;
+			sprintf(pontos, "VOCE PERDEU, TENTE NOVAMENTE!");
+			glColor3f(0.0, 0.0, 0.0);
+			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+			pontuacao = pontos;
+			while (*pontuacao)
+			{
+				glutBitmapCharacter(font, *pontuacao);
+				pontuacao++;
+			}
+		}
+		else
+		{
+			char *pontuacao;
+			sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador + contaSocoEsqLutador, contaSocoDirOponente + contaSocoEsqOponente);
+			glColor3f(0.0, 0.0, 0.0);
+			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+			pontuacao = pontos;
+			while (*pontuacao)
+			{
+				glutBitmapCharacter(font, *pontuacao);
+				pontuacao++;
+			}
+		}
+	}
+	else
+	{
+		char *pontuacao;
+		sprintf(pontos, "CLIQUE NA DIFICULDADE:    FACIL     MEDIO      DIFICIL");
+		glColor3f(0.0, 0.0, 0.0);
+		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
+
+		pontuacao = pontos;
+		while (*pontuacao)
+		{
+			glutBitmapCharacter(font, *pontuacao);
+			pontuacao++;
+		}
+	}
+}
+
 void mouse(int botao, int estado, int x, int y)
 {
-	// Changing y axis orientation
 	y = arenaSVG->get_height() - y;
 
 	if (botao == GLUT_LEFT_BUTTON)
 	{
-		// cout << x << endl;
-		// cout << y << endl;
-
 		if (x > 235 && x < 290 && y > 0 && y < 25)
 		{
 			dificuldadeFacil = true;
@@ -106,11 +309,9 @@ void mouse(int botao, int estado, int x, int y)
 		if (estado == GLUT_DOWN)
 		{
 			xAntigo = x;
-			// lutadorPrincipal->MudaTheta1(0);
 		}
 		else if (estado == GLUT_UP)
 		{
-			// cout << x - xAntigo << endl;
 			lutadorPrincipal->MudaTheta1(-45);
 			lutadorPrincipal->MudaTheta2(135);
 			lutadorPrincipal->MudaTheta3(-45);
@@ -120,102 +321,8 @@ void mouse(int botao, int estado, int x, int y)
 	glutPostRedisplay();
 }
 
-void verificaSeAcertouSocoDireito(Point p, Oponente *o)
-{
-
-	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
-	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
-
-	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
-
-	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
-	{
-		flagSocoDir = true;
-	}
-	else
-	{
-		if (flagSocoDir)
-		{
-			contaSocoDirLutador += 1;
-			flagSocoDir = false;
-		}
-	}
-}
-
-void verificaSeAcertouSocoEsquerdo(Point p, Oponente *o)
-{
-
-	float odX = o->ObtemPosicao().x + arenaSVG->get_width() / 2;
-	float odY = o->ObtemPosicao().y + arenaSVG->get_height() / 2;
-
-	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
-
-	if (dx >= lutadorPrincipal->ObtemRaio() / 2 + o->ObtemRaio())
-	{
-		flagSocoEsq = true;
-	}
-	else
-	{
-		if (flagSocoEsq)
-		{
-			contaSocoEsqLutador += 1;
-			flagSocoEsq = false;
-		}
-	}
-}
-
-void verificaSeAcertouSocoDireitoOponente(Point p, Lutador *l)
-{
-
-	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
-	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
-
-	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
-
-	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
-	{
-		flagSocoDirOp = true;
-		// flagSocoEsqOp = true;
-	}
-	else
-	{
-		if (flagSocoDirOp)
-		{
-			// cout << "ACERTOU" << endl;
-			contaSocoDirOponente += 1;
-			flagSocoDirOp = false;
-			flagSocoEsqOp = true;
-		}
-	}
-}
-
-void verificaSeAcertouSocoEsquerdoOponente(Point p, Lutador *l)
-{
-
-	float odX = l->ObtemPosicao().x + arenaSVG->get_width() / 2;
-	float odY = l->ObtemPosicao().y + arenaSVG->get_height() / 2;
-
-	float dx = sqrt(pow(p.x - odX, 2) + pow(p.y - odY, 2));
-
-	if (dx >= lutadorOponente->ObtemRaio() / 2 + l->ObtemRaio())
-	{
-		flagSocoEsqOp = true;
-		// flagSocoDirOp = true;
-	}
-	else
-	{
-		if (flagSocoEsqOp)
-		{
-			contaSocoEsqOponente += 1;
-			flagSocoEsqOp = false;
-			flagSocoDirOp = true;
-		}
-	}
-}
-
 void movimentoBraco(int x, int y)
 {
-
 	int newX = x;
 	int newY = arenaSVG->get_height() - y;
 
@@ -276,72 +383,15 @@ void keyPress(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-bool dentroArenaLutador(Lutador *l, Arena *a)
+void display(void)
 {
-	float x1, y1, r;
-	x1 = l->ObtemPosicao().x;
-	y1 = l->ObtemPosicao().y;
-	r = l->ObtemRaio();
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	Point p = a->get_vertex();
-	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
-	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
+	lutadorPrincipal->DesenhaLutador();
+	lutadorOponente->DesenhaOponente();
+	printPontuacao();
 
-	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
-		return true;
-	else
-		return false;
-}
-
-bool dentroArenaOponente(Oponente *o, Arena *a)
-{
-	float x1, y1, r;
-	x1 = o->ObtemPosicao().x;
-	y1 = o->ObtemPosicao().y;
-	r = o->ObtemRaio();
-
-	Point p = a->get_vertex();
-	Point inferiorE = {-(p.x + a->get_width() / 2), -(p.x + a->get_height() / 2)};
-	Point superiorD = {(p.x + a->get_width() / 2), (p.x + a->get_height() / 2)};
-
-	if ((x1 - r > inferiorE.x && y1 - r > inferiorE.y) && (x1 + r < superiorD.x && y1 + r < superiorD.y))
-		return true;
-	else
-		return false;
-}
-
-bool dentroOponente(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
-{
-	float rlp, rlo, dx;
-
-	Point p = lutadorPrincipal->ObtemPosicao();
-	rlp = lutadorPrincipal->ObtemRaio();
-	Point o = lutadorOponente->ObtemPosicao();
-	rlo = lutadorOponente->ObtemRaio();
-
-	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
-
-	if (dx >= rlp * 2 + rlo * 2)
-		return true;
-	else
-		return false;
-}
-
-bool dentroLutador(Lutador *lutadorPrincipal, Oponente *lutadorOponente)
-{
-	float rlp, rlo, dx;
-
-	Point p = lutadorPrincipal->ObtemPosicao();
-	rlp = lutadorPrincipal->ObtemRaio();
-	Point o = lutadorOponente->ObtemPosicao();
-	rlo = lutadorOponente->ObtemRaio();
-
-	dx = sqrt(pow(p.x - o.x, 2) + pow(p.y - o.y, 2));
-
-	if (dx >= rlp * 2 + rlo * 2)
-		return true;
-	else
-		return false;
+	glutSwapBuffers();
 }
 
 void idle(void)
@@ -432,7 +482,7 @@ void idle(void)
 					i = ((int)arenaSVG->get_width() / 2);
 				}
 				unsigned seed2 = time(0);
-				srand(seed);
+				srand(seed2);
 				int x = rand() % 2;
 				if (x % 2 == 0)
 				{
@@ -440,8 +490,9 @@ void idle(void)
 						lutadorOponente->MudaTheta1(-45 + i * (135 / (arenaSVG->get_width() / 2)));
 						lutadorOponente->MudaTheta2(135 - i * (angulo * 135 / (arenaSVG->get_width() / 2)));
 						Point pSocoDirOp = lutadorOponente->verificaSocoDirOponente(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, lutadorOponente->ObtemTheta1(), lutadorOponente->ObtemTheta2());
-						if(!flag1SocoDirOp){
-							pSocoDirOp = {0,0};
+						if (!flag1SocoDirOp)
+						{
+							pSocoDirOp = {0, 0};
 							flag1SocoDirOp++;
 						}
 						verificaSeAcertouSocoDireitoOponente(pSocoDirOp, lutadorPrincipal);
@@ -458,8 +509,9 @@ void idle(void)
 						lutadorOponente->MudaTheta3(-45 + i * (135 / (arenaSVG->get_width() / 2)));
 						lutadorOponente->MudaTheta4(135 - i * (angulo * 135 / (arenaSVG->get_width() / 2)));
 						Point pSocoEsqOp = lutadorOponente->verificaSocoEsqOponente(arenaSVG->get_width() / 2, arenaSVG->get_height() / 2, -lutadorOponente->ObtemTheta3(), -lutadorOponente->ObtemTheta4());
-						if(!flag1SocoEsqOp){
-							pSocoEsqOp = {0,0};
+						if (!flag1SocoEsqOp)
+						{
+							pSocoEsqOp = {0, 0};
 							flag1SocoEsqOp++;
 						}
 						verificaSeAcertouSocoEsquerdoOponente(pSocoEsqOp, lutadorPrincipal);
@@ -483,96 +535,8 @@ void idle(void)
 				lutadorOponente->MoveOponente(0, -dy.y);
 			}
 		}
-
-		// glutTimerFunc(1000 / 60, idle, 0);
 	}
-
 	glutPostRedisplay();
-}
-
-void printPontuacao()
-{
-	if (dificuldadeFacil || dificuldadeMedio || dificuldadeDificil)
-	{
-		if (contaSocoDirLutador + contaSocoEsqLutador >= 10)
-		{
-			lutadorGanhou = true;
-			char *pontuacao;
-			sprintf(pontos, "PARABENS, VOCE GANHOU! :D");
-			glColor3f(0.0, 0.0, 0.0);
-			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
-
-			pontuacao = pontos;
-			while (*pontuacao)
-			{
-				glutBitmapCharacter(font, *pontuacao);
-				pontuacao++;
-			}
-		}
-		else if (contaSocoDirOponente + contaSocoEsqOponente >= 10)
-		{
-			oponenteGanhou = true;
-			char *pontuacao;
-			sprintf(pontos, "VOCE PERDEU, TENTE NOVAMENTE!");
-			glColor3f(0.0, 0.0, 0.0);
-			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
-
-			pontuacao = pontos;
-			while (*pontuacao)
-			{
-				glutBitmapCharacter(font, *pontuacao);
-				pontuacao++;
-			}
-		}
-		else
-		{
-			char *pontuacao;
-			sprintf(pontos, "Lutador: %2d x %2d Oponente", contaSocoDirLutador + contaSocoEsqLutador, contaSocoDirOponente + contaSocoEsqOponente);
-			glColor3f(0.0, 0.0, 0.0);
-			glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
-
-			pontuacao = pontos;
-			while (*pontuacao)
-			{
-				glutBitmapCharacter(font, *pontuacao);
-				pontuacao++;
-			}
-		}
-	}
-	else
-	{
-		char *pontuacao;
-		sprintf(pontos, "CLIQUE NA DIFICULDADE:    FACIL     MEDIO      DIFICIL");
-		glColor3f(0.0, 0.0, 0.0);
-		glRasterPos2f(-(arenaSVG->get_width() / 2) + 5, -(arenaSVG->get_height() / 2) + 10);
-
-		pontuacao = pontos;
-		while (*pontuacao)
-		{
-			glutBitmapCharacter(font, *pontuacao);
-			pontuacao++;
-		}
-	}
-}
-
-void display(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	lutadorPrincipal->DesenhaLutador();
-	lutadorOponente->DesenhaOponente();
-	printPontuacao();
-
-	quadros++;
-	final = time(NULL);
-	if (final - inicial > 0)
-	{
-		// cout << "fps " << quadros / (final - inicial) << endl;
-		quadros = 0;
-		inicial = final;
-	}
-	glFlush();
-	glutSwapBuffers();
 }
 
 void init(Cor bgCor, float xlim1, float xlim2, float ylim1, float ylim2)
@@ -584,9 +548,7 @@ void init(Cor bgCor, float xlim1, float xlim2, float ylim1, float ylim2)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-
 	glOrtho(xlim1 / 2, xlim2 / 2, ylim1 / 2, ylim2 / 2, -100, 100);
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -601,7 +563,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		cout << "Digite: ./trabalhocg ./" << endl;
+		cout << "Digite: ./trabalhocg config/" << endl;
 		return 0;
 	}
 	if (arquivo != "")
@@ -615,22 +577,21 @@ int main(int argc, char **argv)
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 		glutInitWindowSize(arenaSVG->get_width(), arenaSVG->get_height());
 		glutInitWindowPosition(100, 0);
-		glutCreateWindow("Ring");
-		Cor bgCor = {arenaSVG->get_color().r, arenaSVG->get_color().g, arenaSVG->get_color().b};
-		init(bgCor, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
+		glutCreateWindow("RING");
+		Cor corDeFundo = {arenaSVG->ObtemCor().r, arenaSVG->ObtemCor().g, arenaSVG->ObtemCor().b};
+		init(corDeFundo, -(arenaSVG->get_width()), arenaSVG->get_width(), -(arenaSVG->get_height()), arenaSVG->get_height());
 		posInicialLutadores();
 		glutDisplayFunc(display);
 		glutKeyboardFunc(keyPress);
 		glutMouseFunc(mouse);
 		glutMotionFunc(movimentoBraco);
 		glutKeyboardUpFunc(keyUp);
-		// glutTimerFunc(1000 / 60, idle, 0);
 		glutIdleFunc(idle);
 		glutMainLoop();
 	}
 	else
 	{
-		cout << "Nome do arquivo da arena vazio. Por favor verifique o seu config.xml\n";
+		cout << "Seu arquivo XML não pode estar vazio!\n";
 		exit(1);
 	}
 }
