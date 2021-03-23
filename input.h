@@ -5,7 +5,6 @@
 #include <stdio.h>
 using namespace std;
 
-string parseXMLFile(string filePath);
 void parseSVGFile(string filePath);
 
 #endif /* INPUT_H_ */

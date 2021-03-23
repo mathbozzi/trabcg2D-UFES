@@ -45,14 +45,14 @@ void posInicialLutadores()
 {
 	//inicia ponto do lutador
 	Point lutadorPoint = lutadorPrincipal->ObtemPosicao();
-	lutadorPoint.x = (lutadorPoint.x - (arenaSVG->get_width() / 2));
-	lutadorPoint.y = (+(arenaSVG->get_height() / 2) - lutadorPoint.y);
+	lutadorPoint.x = ((lutadorPoint.x - arenaSVG->ObtemPos().x) - arenaSVG->get_width() / 2);
+	lutadorPoint.y = (-(lutadorPoint.y - arenaSVG->ObtemPos().y)) + arenaSVG->get_height() / 2;
 	lutadorPrincipal->MudaPosicao(lutadorPoint);
 
 	//inicia ponto do oponente
 	Point oponentePoint = lutadorOponente->ObtemPosicao();
-	oponentePoint.x = (oponentePoint.x - (arenaSVG->get_width() / 2));
-	oponentePoint.y = ((arenaSVG->get_height() / 2) - oponentePoint.y);
+	oponentePoint.x = (oponentePoint.x - (arenaSVG->ObtemPos().x) - arenaSVG->get_width() / 2);
+	oponentePoint.y = (-(oponentePoint.y - arenaSVG->ObtemPos().y)) + arenaSVG->get_height() / 2;
 	lutadorOponente->MudaPosicao(oponentePoint);
 
 	//coloca os dois de frente
@@ -60,6 +60,7 @@ void posInicialLutadores()
 	double angle = atan2(result.y, result.x);
 	lutadorPrincipal->MudaAnguloJogador(((angle * 180) / M_PI) - 90);
 	lutadorOponente->MudaAnguloJogador(-((180 - (angle * 180 / M_PI)) * 2) - (((angle * 180) / M_PI) - 90));
+	arenaSVG->set_vertex({0, 0});
 }
 
 void verificaSeAcertouSocoDireito(Point p, Oponente *o)
@@ -559,19 +560,16 @@ int main(int argc, char **argv)
 	if (argc > 1)
 	{
 		arquivo = argv[1];
-		arquivo += "config.xml";
 	}
 	else
 	{
-		cout << "Digite: ./trabalhocg config/" << endl;
+		cout << "Digite o caminho da arena" << endl;
+		cout << "Exemplo: ./trabalhocg arenas/arena_1.svg" << endl;
 		return 0;
 	}
 	if (arquivo != "")
 	{
-		string arenaFile = parseXMLFile(arquivo);
-
-		if (arenaFile != "")
-			parseSVGFile(arenaFile);
+		parseSVGFile(arquivo);
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -588,10 +586,5 @@ int main(int argc, char **argv)
 		glutKeyboardUpFunc(keyUp);
 		glutIdleFunc(idle);
 		glutMainLoop();
-	}
-	else
-	{
-		cout << "Seu arquivo XML não pode estar vazio!\n";
-		exit(1);
 	}
 }

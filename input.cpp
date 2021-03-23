@@ -12,24 +12,6 @@ extern Arena *arenaSVG;
 extern Lutador *lutadorPrincipal;
 extern Oponente *lutadorOponente;
 
-string parseXMLFile(string filePath)
-{
-  XMLDocument arquivoXML;
-  arquivoXML.LoadFile(filePath.c_str());
-
-  if (arquivoXML.ErrorID() != 0)
-    cout << "Erro no XML" << endl;
-  else
-  {
-    XMLElement *adaElement = arquivoXML.FirstChildElement("boxe")->FirstChildElement("arquivoDaArena");
-    string nome = adaElement->Attribute("nomeArena");
-    string tipo = adaElement->Attribute("tipo");
-    string caminho = adaElement->Attribute("caminho");
-    return caminho + nome + "." + tipo;
-  }
-  return "";
-}
-
 void parseCircle(XMLElement *c, int i)
 {
   float cx, cy, r;
@@ -67,6 +49,8 @@ void parseRect(XMLElement *ret)
 {
   float x, y, width, height;
   Cor cor;
+  ret->QueryFloatAttribute("x", &x);
+  ret->QueryFloatAttribute("y", &y);
   ret->QueryFloatAttribute("width", &width);
   ret->QueryFloatAttribute("height", &height);
   string fill = ret->Attribute("fill");
@@ -84,7 +68,7 @@ void parseRect(XMLElement *ret)
     cor = {0.0, 1.0, 0.0};
   }
 
-  Arena *arena = new Arena(0, 0, width, height, cor);
+  Arena *arena = new Arena(x, y, width, height, cor);
   arenaSVG = arena;
 }
 
